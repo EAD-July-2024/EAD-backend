@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace api.Models
 {
-    public class UserRoles
+    public  class UserRoles
     {
         public const string Admin = "Administrator";
         public const string Vendor = "Vendor";

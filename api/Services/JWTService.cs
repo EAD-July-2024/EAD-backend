@@ -24,9 +24,10 @@ namespace api.Services
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+
         var claims = new[] {
             new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-            new Claim("role", user.Role),
+            new Claim(ClaimTypes.Role, user.Role),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -37,6 +38,9 @@ namespace api.Services
             notBefore:null,
             expires:DateTime.Now.AddMinutes(double.Parse(_config["Jwt:ExpiresInMinutes"]))
         );
+
+      Console.WriteLine(payload.Claims);
+       
 
         var header = new JwtHeader(credentials);
 

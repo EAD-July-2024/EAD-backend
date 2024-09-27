@@ -4,6 +4,7 @@ using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,28 +35,52 @@ builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options => {
+
+    options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = context =>
+            {
+                // Log token validation details
+                var claims = context.Principal.Claims;
+                Console.WriteLine("User claims:");
+                foreach (var claim in claims)
+                {
+                    Console.WriteLine($"{claim.Type}: {claim.Value}");
+                }
+                return Task.CompletedTask;
+            },
+            OnForbidden = context =>
+            {
+                // Log when the user is forbidden
+                Console.WriteLine("User is forbidden.");
+                return Task.CompletedTask;
+            },
+        };
+
     options.RequireHttpsMetadata = false;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        //ValidateIssuer = false,
-        //ValidateAudience = false,
-        ValidateLifetime = true,
-        //ValidateIssuerSigningKey = true,
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = false,
+        ValidateIssuerSigningKey = true,
         //ValidIssuer = builder.Configuration["Jwt:Issuer"],
         //ValidAudience = builder.Configuration["Jwt:Audience"],
-        //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-        RoleClaimType = "role"
-
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        RoleClaimType = ClaimTypes.Role
         //RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
     };
 });
 
+
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdminRole", policy => policy.RequireRole(UserRoles.Admin));
-    options.AddPolicy("RequireVendorRole", policy => policy.RequireRole(UserRoles.Vendor));
-    options.AddPolicy("RequireCSRRole", policy => policy.RequireRole(UserRoles.CSR));
+    options.AddPolicy("RequireVendorRole", policy => policy.RequireRole("Vendor"));
+    options.AddPolicy("RequireCSRRole", policy => policy.RequireRole("CustomerServiceRepresentative"));
+
 });
 
 

@@ -21,9 +21,9 @@ namespace api.Controllers
             _productRepository = productRepository;
         }
 
-        [Authorize(Policy ="RequireVendorRole")]        
-
         [HttpGet("get")]
+        [Authorize(Policy ="RequireAdminRole")]        
+
         public async Task<List<Product>> Get(){
             return await _productRepository.GetAsync();
             

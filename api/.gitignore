@@ -1,0 +1,39 @@
+# Ignore .NET specific files
+bin/
+obj/
+
+# Ignore NuGet packages
+*.nupkg
+*.snupkg
+packages/
+
+# Ignore VS Code settings
+.vscode/
+
+# Ignore build results
+publish/
+.publish/
+
+# Ignore logs
+*.log
+
+# Ignore User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore local database
+*.mdf
+*.ldf
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
