@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copy the project file and restore any dependencies (use .csproj for the project name)
-COPY *.csproj ./
+COPY api/*.csproj ./api/
 RUN dotnet restore
 
 # Copy the rest of the application code

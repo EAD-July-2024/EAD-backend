@@ -3247,28 +3247,27 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\sahanp\\.nuget\\packages\\": {}
+    "C:\\Users\\Udesh\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\sahanp\\Desktop\\webAPIexample2\\api\\api.csproj",
+      "projectUniqueName": "E:\\dotnet\\EAD-backend\\api\\api.csproj",
       "projectName": "api",
-      "projectPath": "C:\\Users\\sahanp\\Desktop\\webAPIexample2\\api\\api.csproj",
-      "packagesPath": "C:\\Users\\sahanp\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\sahanp\\Desktop\\webAPIexample2\\api\\obj\\",
+      "projectPath": "E:\\dotnet\\EAD-backend\\api\\api.csproj",
+      "packagesPath": "C:\\Users\\Udesh\\.nuget\\packages\\",
+      "outputPath": "E:\\dotnet\\EAD-backend\\api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\sahanp\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 18.2.config",
+        "C:\\Users\\Udesh\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\DevExpress 18.2\\Components\\System\\Components\\Packages": {},
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -3348,7 +3347,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400-preview.0.24324.5/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
