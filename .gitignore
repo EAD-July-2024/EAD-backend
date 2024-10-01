@@ -2,6 +2,10 @@
 bin/
 obj/
 
+# Ignore bin and obj folders inside the api folder
+api/bin/
+api/obj/
+
 # Ignore NuGet packages
 *.nupkg
 *.snupkg
@@ -37,3 +41,7 @@ Thumbs.db
 *.temp
 *.bak
 *.swp
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+.vscode/
