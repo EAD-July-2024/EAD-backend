@@ -14,7 +14,9 @@ namespace api.Models
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
         public string Role { get; set; } = null!;
+
         public bool IsApproved { get; set; } = false;
+        
         public List<Order> Orders { get; set; } = new List<Order>();
     }
 }
