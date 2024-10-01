@@ -13,7 +13,7 @@ builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("Mo
 
 builder.Services.AddControllers();
 // Register MongoDBSettings as a singleton service
-builder.Services.AddSingleton(serviceProvider =>  
+builder.Services.AddSingleton(serviceProvider =>
     serviceProvider.GetRequiredService<IOptions<MongoDBSettings>>().Value
 );
 
@@ -24,6 +24,18 @@ builder.Services.AddScoped<VendorRepository>();
 builder.Services.AddScoped<UserRepository>();
 
 builder.Services.AddScoped<JWTService>();
+
+// Add CORS services to allow any origin, method, and header
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -37,25 +49,25 @@ builder.Services.AddAuthentication(options => {
 }).AddJwtBearer(options => {
 
     options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = context =>
         {
-            OnTokenValidated = context =>
+            // Log token validation details
+            var claims = context.Principal.Claims;
+            Console.WriteLine("User claims:");
+            foreach (var claim in claims)
             {
-                // Log token validation details
-                var claims = context.Principal.Claims;
-                Console.WriteLine("User claims:");
-                foreach (var claim in claims)
-                {
-                    Console.WriteLine($"{claim.Type}: {claim.Value}");
-                }
-                return Task.CompletedTask;
-            },
-            OnForbidden = context =>
-            {
-                // Log when the user is forbidden
-                Console.WriteLine("User is forbidden.");
-                return Task.CompletedTask;
-            },
-        };
+                Console.WriteLine($"{claim.Type}: {claim.Value}");
+            }
+            return Task.CompletedTask;
+        },
+        OnForbidden = context =>
+        {
+            // Log when the user is forbidden
+            Console.WriteLine("User is forbidden.");
+            return Task.CompletedTask;
+        },
+    };
 
     options.RequireHttpsMetadata = false;
     options.SaveToken = true;
@@ -65,24 +77,17 @@ builder.Services.AddAuthentication(options => {
         ValidateAudience = false,
         ValidateLifetime = false,
         ValidateIssuerSigningKey = true,
-        //ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        //ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
         RoleClaimType = ClaimTypes.Role
-        //RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
     };
 });
-
-
 
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdminRole", policy => policy.RequireRole(UserRoles.Admin));
     options.AddPolicy("RequireVendorRole", policy => policy.RequireRole("Vendor"));
     options.AddPolicy("RequireCSRRole", policy => policy.RequireRole("CustomerServiceRepresentative"));
-
 });
-
 
 var app = builder.Build();
 
@@ -99,12 +104,11 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
-
-
-
 app.UseHttpsRedirection();
+
+// Enable CORS
+app.UseCors("AllowAll");
 
 app.MapControllers();
 
 app.Run();
-
