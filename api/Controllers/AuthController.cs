@@ -20,6 +20,7 @@ namespace api.Controllers
         _jwtService = jwtService;
     }
 
+    //Login
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
@@ -36,7 +37,7 @@ namespace api.Controllers
         }
 
         var token = _jwtService.GenerateJwtToken(user);
-        return Ok(new { Token = token });
+        return Ok(new { Token = token, Role = user.Role, Email = user.Email, Name = user.FullName });
     }
 
     [HttpPost("register")]
@@ -46,6 +47,7 @@ namespace api.Controllers
         var user = new ApplicationUser
         {
             Email = model.Email,
+            FullName = model.FullName,
             PasswordHash = hashedPassword,
             Role = model.Role
         };
