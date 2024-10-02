@@ -20,9 +20,14 @@ namespace api.Services
             IMongoDatabase database = client.GetDatabase(mongoDBSettings.Value.DatabaseName);
             _products = database.GetCollection<Product>(mongoDBSettings.Value.CollectionName);
 
-            // Use the AWS Access Key and Secret Key directly in code
-            var awsAccessKeyId = "";  // Replace with your actual AWS_ACCESS_KEY_ID
-            var awsSecretAccessKey = "";  // Replace with your actual AWS_SECRET_ACCESS_KEY
+            // Retrieve AWS credentials from environment variables
+            var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+            var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+
+            if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey))
+            {
+                throw new InvalidOperationException("AWS credentials not found in environment variables.");
+            }
 
             var credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey);
 
