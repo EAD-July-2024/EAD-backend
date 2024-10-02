@@ -63,6 +63,7 @@ namespace api.Services
         public async Task<List<Product>> GetAsync()
         {
             var products = await _products.Find(new BsonDocument()).ToListAsync();
+
             foreach (var product in products)
             {
                 for (int i = 0; i < product.ImageUrls.Count; i++)
@@ -72,6 +73,7 @@ namespace api.Services
             }
             return products;
         }
+
 
         private string GeneratePresignedURL(string objectKey)
         {
