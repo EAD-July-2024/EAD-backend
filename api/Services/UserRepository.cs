@@ -22,6 +22,7 @@ namespace api.Services
 
     public async Task CreateAsync(ApplicationUser user) => await _users.InsertOneAsync(user);
 
+    //Get user by mail
     public async Task<ApplicationUser?> GetByEmailAsync(string email) => 
         await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
 
