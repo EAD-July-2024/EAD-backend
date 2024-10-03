@@ -6,6 +6,9 @@ public class Product
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]  // This ensures MongoDB treats _id as a string in serialization
     public string Id { get; set; }
+
+    public string ProductId { get; set; }
+
     public string Name { get; set; }
     public string Description { get; set; }
     public string Price { get; set; }
