@@ -52,7 +52,7 @@ namespace api.Services
         {
             for (int i = 0; i < imageStreams.Count; i++)
             {
-                var fileName = $"{product.Id}_image_{i}.jpg";
+                var fileName = $"{product.ProductId}_image_{i}.jpg";
                 var imageUrl = await UploadImageAsync(fileName, imageStreams[i]);
                 product.ImageUrls.Add(imageUrl);
             }
@@ -68,13 +68,13 @@ namespace api.Services
         {
             var products = await _products.Find(new BsonDocument()).ToListAsync();
 
-            foreach (var product in products)
-            {
-                for (int i = 0; i < product.ImageUrls.Count; i++)
-                {
-                    product.ImageUrls[i] = GeneratePresignedURL(product.ImageUrls[i]);
-                }
-            }
+            //foreach (var product in products)
+            //{
+            //    for (int i = 0; i < product.ImageUrls.Count; i++)
+            //    {
+            //        product.ImageUrls[i] = GeneratePresignedURL(product.ImageUrls[i]);
+            //    }
+            //}
             return products;
         }
 
