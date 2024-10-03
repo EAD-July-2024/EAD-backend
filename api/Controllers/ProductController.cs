@@ -28,6 +28,10 @@ namespace api.Controllers
         //[Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> Create([FromForm] Product product, List<IFormFile> images)
         {
+            // Generate the Custom ID
+            var random = new Random();
+            product.ProductId = await GenerateUniqueCustomIdAsync();
+
             if (images.Count > 5)
             {
                 return BadRequest("You can upload up to 5 images.");
@@ -43,5 +47,39 @@ namespace api.Controllers
             await _productRepository.CreateAsync(product, imageStreams);
             return Ok(product);
         }
+
+        // Method to generate a unique Product ID
+        private async Task<string> GenerateUniqueCustomIdAsync()
+        {
+            var random = new Random();
+            string customId;
+            bool exists;
+
+            do
+            {
+                
+                customId = "P" + random.Next(0, 99999).ToString("D5");
+
+                
+                exists = await _productRepository.getExistingIds(customId);
+            } 
+            while (exists); 
+
+            return customId;
+        }
+
+        //
+        //Get product details by product custom id
+        [HttpGet("getByCustomId/{customId}")]
+        public async Task<IActionResult> GetByCustomId(string customId)
+        {
+            var product = await _productRepository.GetByCustomIdAsync(customId);
+            if (product == null)
+            {
+                return NotFound("Product not found");
+            }
+            return Ok(product);
+        }
+
     }
 }
