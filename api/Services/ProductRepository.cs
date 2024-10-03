@@ -20,7 +20,7 @@ namespace api.Services
             IMongoDatabase database = client.GetDatabase(mongoDBSettings.Value.DatabaseName);
             _products = database.GetCollection<Product>(mongoDBSettings.Value.CollectionName);
 
-            // Retrieve AWS credentials from environment variables
+            /// Retrieve AWS credentials from environment variables
             var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
 
@@ -60,6 +60,10 @@ namespace api.Services
             await _products.InsertOneAsync(product);
         }
 
+        public async Task<bool> getExistingIds (String pId){
+            return await _products.Find(p => p.ProductId == pId).AnyAsync();
+        }
+
         public async Task<List<Product>> GetAsync()
         {
             var products = await _products.Find(new BsonDocument()).ToListAsync();
@@ -85,5 +89,13 @@ namespace api.Services
             };
             return _s3Client.GetPreSignedURL(request);
         }
+
+
+        //Get product details by product custom id
+        public async Task<Product> GetByCustomIdAsync(string customId)
+        {
+            return await _products.Find(p => p.ProductId == customId).FirstOrDefaultAsync();
+        }
+
     }
 }
