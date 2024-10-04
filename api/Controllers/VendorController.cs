@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +6,7 @@ namespace api.Controllers
 {
     [Controller]
     [Route("api/vendor")]
-    public class VendorController: Controller
+    public class VendorController : Controller
     {
         private readonly MongoDBService _mongoDBService;
 
@@ -31,6 +27,6 @@ namespace api.Controllers
             await _mongoDBService.CreateVendorAsync(vendor);
             return CreatedAtAction(nameof(Get), new { id = vendor.Id }, vendor);
         }
-        
+
     }
 }

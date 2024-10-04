@@ -1,6 +1,6 @@
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.Runtime;  // Required for BasicAWSCredentials
+using Amazon.Runtime;
 using api.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -20,9 +20,13 @@ namespace api.Services
             IMongoDatabase database = client.GetDatabase(mongoDBSettings.Value.DatabaseName);
             _products = database.GetCollection<Product>(mongoDBSettings.Value.CollectionName);
 
-            // // Retrieve AWS credentials from environment variables
-            var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
-            var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+            // // // Retrieve AWS credentials from environment variables
+            // var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+            // var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+
+            // Retrieve AWS credentials from environment variables
+            var awsAccessKeyId = "AKIAR22HOY3YLDAUVIWE";
+            var awsSecretAccessKey = "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";
 
             if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey))
             {
@@ -102,7 +106,7 @@ namespace api.Services
         public async Task DeactivateProductAsync(Product product)
         {
             var filter = Builders<Product>.Filter.Eq(p => p.Id, product.Id);
-            var update = Builders<Product>.Update.Set(p => p.IsActive, false);
+            var update = Builders<Product>.Update.Set(p => p.IsDeleted, false);
             await _products.UpdateOneAsync(filter, update);
         }
 
