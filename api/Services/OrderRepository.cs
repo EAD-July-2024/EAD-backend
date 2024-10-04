@@ -20,6 +20,7 @@ namespace api.Services
             _orders = database.GetCollection<Order>("Orders");
         }
 
+        //create order
         public async Task CreateOrderAsync(Order order) => await _orders.InsertOneAsync(order);
 
         public async Task<List<Order>> GetOrdersByCustomerAsync(string customerId) =>
@@ -27,5 +28,15 @@ namespace api.Services
 
         public async Task UpdateOrderStatusAsync(ObjectId orderId, string Status) => 
             await _orders.UpdateOneAsync(o => o.Id == orderId, Builders<Order>.Update.Set(o => o.Status, Status));
+
+        
+        // Check if any order contains the product custom ID
+        public async Task<bool> CheckProductInOrdersAsync(string productCustomId)
+        {
+            
+            var filter = Builders<Order>.Filter.ElemMatch(o => o.Items, item => item.ProductCustomId == productCustomId);
+            var order = await _orders.Find(filter).FirstOrDefaultAsync();
+            return order != null;
+        }
     }
 }
