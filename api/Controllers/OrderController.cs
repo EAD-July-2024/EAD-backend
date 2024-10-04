@@ -10,6 +10,7 @@ using MongoDB.Bson;
 namespace api.Controllers
 {
     [Controller]
+    [Route("api/order")]
     public class OrderController : Controller
     {
 
@@ -20,12 +21,12 @@ namespace api.Controllers
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
-            
-        }
-        
 
-        //create an order
-        [HttpPost("api/order/create")]
+        }
+
+
+        // Create an order
+        [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] List<OrderItem> orderItems)
         {
             decimal totalPrice = 0;
@@ -38,15 +39,15 @@ namespace api.Controllers
                     return NotFound($"Product with ID {item.ProductCustomId} not found");
                 }
 
-                item.Price = decimal.Parse(product.Price);  
-                totalPrice += item.Price * item.Quantity;  
+                item.Price = decimal.Parse(product.Price);
+                totalPrice += item.Price * item.Quantity;
             }
 
             var order = new Order
             {
                 Items = orderItems,
-                CustomerId = "customer id",  
-                VendorId = "vendor id",  
+                CustomerId = "customer id",
+                VendorId = "vendor id",
                 TotalPrice = totalPrice
             };
 
@@ -54,18 +55,18 @@ namespace api.Controllers
             return Ok(order);
         }
 
-        [HttpGet("api/order/get/{customerId}")]
+        [HttpGet("getByCustomerId/{customerId}")]
         public async Task<List<Order>> GetOrdersByCustomer(string customerId)
         {
             return await _orderRepository.GetOrdersByCustomerAsync(customerId);
         }
 
-        [HttpPost("api/order/update/{orderId}")]
+        [HttpPatch("{orderId}")]
         public async Task<IActionResult> UpdateOrderStatus(string orderId, [FromBody] string status)
         {
             await _orderRepository.UpdateOrderStatusAsync(ObjectId.Parse(orderId), status);
             return Ok();
         }
-        
+
     }
 }
