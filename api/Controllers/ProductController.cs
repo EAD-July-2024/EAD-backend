@@ -19,14 +19,14 @@ namespace api.Controllers
             _orderRepository = orderRepository;
         }
 
-        [HttpGet("get")]
+        [HttpGet]
         //[Authorize(Policy = "RequireAdminRole")]
         public async Task<List<Product>> Get()
         {
             return await _productRepository.GetAsync();
         }
 
-        [HttpPost("create")]
+        [HttpPost]
         //[Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> Create([FromForm] Product product, List<IFormFile> images)
         {
@@ -59,23 +59,23 @@ namespace api.Controllers
 
             do
             {
-                
+
                 customId = "P" + random.Next(0, 99999).ToString("D5");
 
-                
+
                 exists = await _productRepository.getExistingIds(customId);
-            } 
-            while (exists); 
+            }
+            while (exists);
 
             return customId;
         }
 
         //
         //Get product details by product custom id
-        [HttpGet("getByCustomId/{customId}")]
-        public async Task<IActionResult> GetByCustomId(string customId)
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetByCustomId(string productId)
         {
-            var product = await _productRepository.GetByCustomIdAsync(customId);
+            var product = await _productRepository.GetByCustomIdAsync(productId);
             if (product == null)
             {
                 return NotFound("Product not found");
@@ -84,49 +84,48 @@ namespace api.Controllers
         }
 
 
-        // Endpoint to deactivate a product
-        [HttpPost("deactivate/{productId}")]
+        // Endpoint to delete a product
+        [HttpDelete("{productId}")]
         public async Task<IActionResult> DeactivateProduct(string productId)
         {
-        
-        var product = await _productRepository.GetByCustomIdAsync(productId);
-        if (product == null)
-        {
-            return NotFound($"Product with Custom ID {productId} not found");
-        }
 
-        
-        bool isProductInOrders = await _orderRepository.CheckProductInOrdersAsync(productId);
-        if (isProductInOrders)
-        {
-            return BadRequest("Product cannot be deleted because it is part of existing orders.");
-        }
+            var product = await _productRepository.GetByCustomIdAsync(productId);
+            if (product == null)
+            {
+                return NotFound($"Product with Custom ID {productId} not found");
+            }
 
-        product.IsActive = false;
-        await _productRepository.DeactivateProductAsync(product);
+            bool isProductInOrders = await _orderRepository.CheckProductInOrdersAsync(productId);
+            if (isProductInOrders)
+            {
+                return BadRequest("Product cannot be deleted because it is part of existing orders.");
+            }
 
-        return Ok($"Product with Custom ID {productId} has been deactivated.");
+            product.IsActive = false;
+            await _productRepository.DeactivateProductAsync(product);
+
+            return Ok($"Product with Custom ID {productId} has been deactivated.");
         }
 
         // Update the stock level of a product
-        [HttpPost("{id}/update-stock")]
-        public async Task<IActionResult> UpdateProductStock(string id, [FromBody] int newQuantity)
+        [HttpPatch("quantity/{productId}")]
+        public async Task<IActionResult> UpdateProductStock(string productId, [FromBody] int newQuantity)
         {
-            var product = await _productRepository.GetByCustomIdAsync(id);
+            var product = await _productRepository.GetByCustomIdAsync(productId);
             if (product == null)
             {
                 return NotFound("Product not found");
             }
 
-            await _productRepository.UpdateQuantityAsync(id, newQuantity);
+            await _productRepository.UpdateQuantityAsync(productId, newQuantity);
             return Ok($"Stock level updated for product {product.Name}. New quantity: {newQuantity}");
         }
 
         // Get the current stock level of a product
-        [HttpGet("{id}/stock")]
-        public async Task<IActionResult> GetProductStock(string id)
+        [HttpGet("quantity/{productId}")]
+        public async Task<IActionResult> GetProductStock(string productId)
         {
-            var product = await _productRepository.GetByCustomIdAsync(id);
+            var product = await _productRepository.GetByCustomIdAsync(productId);
             if (product == null)
             {
                 return NotFound("Product not found");
@@ -135,9 +134,9 @@ namespace api.Controllers
         }
 
 
-        
 
-    
+
+
 
     }
 }
