@@ -101,7 +101,7 @@ namespace api.Controllers
                 return BadRequest("Product cannot be deleted because it is part of existing orders.");
             }
 
-            product.IsActive = false;
+            product.IsDeleted = false;
             await _productRepository.DeactivateProductAsync(product);
 
             return Ok($"Product with Custom ID {productId} has been deactivated.");
