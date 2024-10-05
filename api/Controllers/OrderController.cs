@@ -2,6 +2,7 @@ using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
+using api.DTOs;
 
 namespace api.Controllers
 {
@@ -9,15 +10,18 @@ namespace api.Controllers
     [Route("api/order")]
     public class OrderController : Controller
     {
-        private readonly OrderRepository _orderRepository;
         private readonly ProductRepository _productRepository;
+        private readonly OrderRepository _orderRepository;
+        private readonly OrderItemRepository _orderItemRepository;
 
-        public OrderController(OrderRepository orderRepository, ProductRepository productRepository)
+        public OrderController(ProductRepository productRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository)
         {
-            _orderRepository = orderRepository;
             _productRepository = productRepository;
+            _orderRepository = orderRepository;
+            _orderItemRepository = orderItemRepository;
         }
 
+        // Method to generate a unique Order ID
         // Method to generate a unique Order ID
         private async Task<string> GenerateUniqueOrderIdAsync()
         {
@@ -28,46 +32,77 @@ namespace api.Controllers
             do
             {
                 customId = "O" + random.Next(0, 99999).ToString("D5");
-                exists = await _orderRepository.getExistingIds(customId);
+                exists = await _orderRepository.GetExistingIdsAsync(customId); // Updated method name here
             }
             while (exists);
 
             return customId;
         }
 
+
         // Create a new order
         [HttpPost]
-        public async Task<IActionResult> CreateOrder([FromBody] List<OrderItem> orderItems)
+        public async Task<IActionResult> CreateOrder([FromBody] OrderCreationRequest request)
         {
-            decimal totalPrice = 0;
+            // Create custom OrderId
+            string customOrderId = await GenerateUniqueOrderIdAsync();
 
-            foreach (var item in orderItems)
+            float totalPrice = 0;
+            List<OrderItem> processedItems = new List<OrderItem>();
+
+            foreach (var item in request.ProductList)
             {
+                // Fetch product details by product ID
                 var product = await _productRepository.GetByCustomIdAsync(item.ProductId);
                 if (product == null)
                 {
                     return NotFound($"Product with ID {item.ProductId} not found");
                 }
 
-                item.Price = decimal.Parse(product.Price);
-                totalPrice += item.Price * item.Quantity;
+                // Calculate the total price for each order item (product price * quantity)
+                float itemPrice = float.Parse(product.Price);
+                totalPrice += itemPrice * item.Quantity;
+
+                // Add product price to the order item for record keeping
+                processedItems.Add(new OrderItem
+                {
+                    OrderId = customOrderId,
+                    ProductId = item.ProductId,
+                    ProductName = product.Name,
+                    VendorId = product.VendorID,
+                    Quantity = item.Quantity,
+                    Price = item.Price,
+                    Status = "Pending",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                });
             }
 
+            // Create the new order
             var order = new Order
             {
-                Id = ObjectId.GenerateNewId(),
-                OrderId = await GenerateUniqueOrderIdAsync(), // Generate a new custom OrderID
-                Products = orderItems,  // Changed from Items to Products
-                CustomerId = "C0001",   // Static customer ID for now (or you can make it dynamic)
+                OrderId = customOrderId,
+                CustomerId = request.CustomerId, // Use the customer ID from the request
                 TotalPrice = totalPrice,
                 Status = "Pending",
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             };
 
+            // Save order to the database
             await _orderRepository.CreateOrderAsync(order);
+
+            // Assign the generated order ID to the order items and save them
+            foreach (var processedItem in processedItems)
+            {
+                processedItem.OrderId = order.OrderId;
+                await _orderItemRepository.CreateOrderItemAsync(processedItem);  // Save each item with the new Order ID
+            }
+
             return Ok(order);
         }
+
+
 
         // Get all orders
         [HttpGet("getAllOrders")]
@@ -109,6 +144,5 @@ namespace api.Controllers
             await _orderRepository.UpdateOrderStatusAsync(orderId, status);  // Update status based on OrderId
             return Ok();
         }
-
     }
 }
