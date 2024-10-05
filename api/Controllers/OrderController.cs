@@ -72,7 +72,7 @@ namespace api.Controllers
                     OrderId = customOrderId,
                     ProductId = item.ProductId,
                     ProductName = product.Name,
-                    VendorId = product.VendorID,
+                    VendorId = product.VendorId,
                     Quantity = item.Quantity,
                     Price = product.Price,
                     Status = "Pending",
