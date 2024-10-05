@@ -17,6 +17,7 @@ builder.Services.AddSingleton(serviceProvider =>
     serviceProvider.GetRequiredService<IOptions<MongoDBSettings>>().Value
 );
 
+
 // Register MongoDBService as a singleton
 builder.Services.AddScoped<MongoDBService>();
 builder.Services.AddScoped<ProductRepository>();
@@ -24,6 +25,9 @@ builder.Services.AddScoped<VendorRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<OrderRepository>();
 builder.Services.AddScoped<RatingRepository>();
+builder.Services.AddSingleton<FirebaseService>();
+
+
 
 builder.Services.AddScoped<JWTService>();
 

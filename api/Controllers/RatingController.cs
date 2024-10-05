@@ -17,11 +17,13 @@ namespace api.Controllers
 
         private readonly RatingRepository _ratingRepository;
         private readonly UserRepository _userRepository;
+        private readonly FirebaseService _firebaseService;
 
-        public RatingController(RatingRepository ratingRepository, UserRepository userRepository )
+        public RatingController(RatingRepository ratingRepository, UserRepository userRepository, FirebaseService firebaseService)
         {
             _ratingRepository = ratingRepository;
             _userRepository = userRepository;
+            _firebaseService = firebaseService;
         }
 
         [HttpPost]
@@ -88,6 +90,25 @@ namespace api.Controllers
             rating.DateModified = DateTime.UtcNow;
 
             await _ratingRepository.UpdateRatingAsync(rating);
+
+
+
+
+
+            // **Invoke Firebase notification**
+        // Send a notification to the vendor after the customer adds a rating/comment
+        var notificationTitle = "New Rating Received!";
+        var notificationBody = $" stars and a comment: ";
+
+        // You would ideally store and retrieve the vendor's FCM token in the database
+        // For now, assume that you have the vendor's FCM token.
+        var vendorFcmToken = "cdCg-E5kCY3NXOP3BOtfNj:APA91bEAY2IS4qmgyWRt2PjlT3p2N1keG4tsN7fM8oGJR2rUkvU_tQ7dkP6aRWyjW1qk-ZsDn2k1Y7fF93HA9C1J3Kzfc5ashCmu1hQFxgUr9_AvUk7XwFIfmglSrbhKmBlbb20rgCPC";  // Make sure this is stored in your ApplicationUser model
+
+        if (!string.IsNullOrEmpty(vendorFcmToken))
+        {
+            Console.WriteLine("Sending notification to vendor...");
+            await _firebaseService.SendNotificationAsync(vendorFcmToken, notificationTitle, notificationBody);
+        }
 
             return Ok("Comment updated successfully.");
         }
