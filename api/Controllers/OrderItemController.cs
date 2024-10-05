@@ -1,5 +1,6 @@
 using api.Models;
 using api.Services;
+using api.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
@@ -9,10 +10,12 @@ namespace api.Controllers
     public class OrderItemController : Controller
     {
         private readonly OrderItemRepository _orderItemRepository;
+        private readonly OrderRepository _orderRepository;
 
-        public OrderItemController(OrderItemRepository orderItemRepository)
+        public OrderItemController(OrderItemRepository orderItemRepository, OrderRepository orderRepository)
         {
             _orderItemRepository = orderItemRepository;
+            _orderRepository = orderRepository;
         }
 
         // Create a new OrderItem
@@ -47,16 +50,68 @@ namespace api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrderItem(string id, [FromBody] OrderItem updatedOrderItem)
         {
+            // Fetch the existing OrderItem
             var existingOrderItem = await _orderItemRepository.GetOrderItemByIdAsync(id);
             if (existingOrderItem == null)
             {
                 return NotFound($"OrderItem with ID {id} not found.");
             }
 
-            updatedOrderItem.Id = id; // Ensure the ID is the same
+            // Check if the order associated with this OrderItem is not dispatched or delivered
+            var order = await _orderRepository.GetOrderByOrderIdAsync(existingOrderItem.OrderId);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {existingOrderItem.OrderId} not found.");
+            }
+
+            // Allow update only if the order status is not 'Dispatched' or 'Delivered'
+            if (order.Status == "Dispatched" || order.Status == "Delivered")
+            {
+                return BadRequest("Cannot update the OrderItem as the associated order has already been dispatched or delivered.");
+            }
+
+            // Update the OrderItem
+            updatedOrderItem.Id = id;
             await _orderItemRepository.UpdateOrderItemAsync(updatedOrderItem);
             return Ok(updatedOrderItem);
         }
+
+        // Update only the status of an OrderItem
+        [HttpPatch("updateStatus/{id}")]
+        public async Task<IActionResult> UpdateOrderItemStatus(string id, [FromBody] UpdateOrderItemStatusRequest request)
+        {
+            // Fetch the existing OrderItem
+            var existingOrderItem = await _orderItemRepository.GetOrderItemByIdAsync(id);
+            if (existingOrderItem == null)
+            {
+                return NotFound($"OrderItem with ID {id} not found.");
+            }
+
+            // Fetch the order associated with this OrderItem
+            var order = await _orderRepository.GetOrderByOrderIdAsync(existingOrderItem.OrderId);
+            if (order == null)
+            {
+                return NotFound($"Order with ID {existingOrderItem.OrderId} not found.");
+            }
+
+            // Allow update only if the order status is not 'Dispatched' or 'Delivered'
+            if (order.Status == "Dispatched" || order.Status == "Delivered")
+            {
+                return BadRequest("Cannot update the OrderItem status as the associated order has already been dispatched or delivered.");
+            }
+
+            // Update the OrderItem status
+            existingOrderItem.Status = request.NewStatus; // Assuming `NewStatus` is a property in the request
+            existingOrderItem.UpdatedDate = DateTime.Now; // Set updated date to now
+
+            // Update the status in the repository
+            await _orderItemRepository.UpdateOrderItemStatusAsync(existingOrderItem.Id, existingOrderItem.Status); // Call repository method
+
+            return Ok(existingOrderItem);
+        }
+
+
+
 
         // Delete an OrderItem by ID
         [HttpDelete("{id}")]

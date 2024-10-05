@@ -47,6 +47,18 @@ namespace api.Services
             await _orderItems.UpdateOneAsync(filter, update);
         }
 
+        // Update only the status of an OrderItem
+        public async Task UpdateOrderItemStatusAsync(string id, string newStatus)
+        {
+            var filter = Builders<OrderItem>.Filter.Eq(o => o.Id, id);
+            var update = Builders<OrderItem>.Update
+                .Set(o => o.Status, newStatus)
+                .Set(o => o.UpdatedDate, DateTime.Now); // Update the timestamp
+
+            await _orderItems.UpdateOneAsync(filter, update);
+        }
+
+
         // Delete an OrderItem by ID
         public async Task DeleteOrderItemAsync(string id)
         {

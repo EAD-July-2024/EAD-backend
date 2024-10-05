@@ -13,7 +13,7 @@ namespace api.Models
         public string ProductName { get; set; } = null!;
         public string VendorId { get; set; } = null!;
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public float Price { get; set; }
         public string Status { get; set; } = "Pending"!;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;

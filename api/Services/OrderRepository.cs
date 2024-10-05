@@ -24,17 +24,6 @@ namespace api.Services
         public async Task<List<Order>> GetOrdersByCustomerAsync(string customerId) =>
             await _orders.Find(o => o.CustomerId == customerId).ToListAsync();
 
-        // Update order status
-        public async Task UpdateOrderStatusAsync(string orderId, string status)
-        {
-            var filter = Builders<Order>.Filter.Eq(o => o.OrderId, orderId);
-            var update = Builders<Order>.Update
-                .Set(o => o.Status, status)
-                .Set(o => o.UpdatedDate, DateTime.Now);
-
-            await _orders.UpdateOneAsync(filter, update);
-        }
-
         // Check if order ID exists
         public async Task<bool> GetExistingIdsAsync(string orderId) =>
             await _orders.Find(o => o.OrderId == orderId).AnyAsync();
@@ -58,5 +47,26 @@ namespace api.Services
             await _orders.UpdateOneAsync(filter, update);
         }
 
+        // Update order status only
+        public async Task UpdateOrderStatusAsync(string orderId, string status)
+        {
+            var filter = Builders<Order>.Filter.Eq(o => o.OrderId, orderId);
+            var update = Builders<Order>.Update
+                .Set(o => o.Status, status)
+                .Set(o => o.UpdatedDate, DateTime.Now);
+
+            await _orders.UpdateOneAsync(filter, update);
+        }
+
+        // Update only the total price of the order
+        public async Task UpdateOrderTotalPriceAsync(string orderId, float totalPrice)
+        {
+            var filter = Builders<Order>.Filter.Eq(o => o.OrderId, orderId);
+            var update = Builders<Order>.Update
+                .Set(o => o.TotalPrice, totalPrice)
+                .Set(o => o.UpdatedDate, DateTime.Now);
+
+            await _orders.UpdateOneAsync(filter, update);
+        }
     }
 }
