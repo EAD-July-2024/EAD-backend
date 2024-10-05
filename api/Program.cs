@@ -22,8 +22,12 @@ builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<VendorRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<OrderRepository>();
+
+builder.Services.AddScoped<RatingRepository>();
+
 builder.Services.AddScoped<OrderItemRepository>();
 builder.Services.AddScoped<CategoryRepository>();
+
 
 builder.Services.AddScoped<JWTService>();
 
