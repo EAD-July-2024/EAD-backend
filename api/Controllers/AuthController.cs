@@ -45,17 +45,55 @@ namespace api.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
+            var userId = await GenerateUniqueUserIdAsync(model.Role);
             var user = new ApplicationUser
             {
                 Email = model.Email,
+                UserId = userId,
                 FullName = model.FullName,
+                ContactInfo = model.ContactInfo,
                 PasswordHash = hashedPassword,
                 Role = model.Role
             };
+            if(model.Role == "CSR") user.IsApproved = true;
+            if(model.Role == "Vendor") user.IsApproved = true;
 
             await _userRepository.CreateAsync(user);
+            if(user.Role == "CSR" ) return Ok("User created. User can now login.");
+            if(user.Role == "Vendor" ) return Ok("User created. User can now login.");
+
             await _userRepository.NotifyCSR(); // Notify CSR on new account
             return Ok("User created. Pending approval from CSR.");
+        }
+
+        //Generate unique User Id
+        private async Task<string> GenerateUniqueUserIdAsync(string role)
+        {
+            var random = new Random();
+            string userId;
+            bool exists;
+
+            do
+            {
+                if (role == "Customer")
+                {
+                    userId = "CUS" + random.Next(0, 999999).ToString("D5");
+                }
+                else if (role == "Vendor")
+                {
+                    userId = "VEND" + random.Next(0, 999999).ToString("D5");
+                }
+                else
+                {
+                    userId = "CSR" + random.Next(0, 999999).ToString("D5");
+                }
+
+                
+                exists = await _userRepository.getExistingUserIds(userId);
+
+            } while (exists);
+
+            return userId;
         }
 
     }

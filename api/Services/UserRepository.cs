@@ -36,6 +36,24 @@ namespace api.Services
     public async Task NotifyCSR() =>
         await _users.UpdateManyAsync(u => !u.IsApproved && !u.IsApproved, Builders<ApplicationUser>.Update.Set(u => u.IsApproved, true));
 
+    //Get existing user IDs
+    public async Task<bool> getExistingUserIds(String generatedId)
+        {
+            return await _users.Find(u => u.UserId == generatedId).AnyAsync();
+        }
+
+    //Get user by ID
+    public async Task<ApplicationUser?> GetUserByIdAsync(string userId)
+    {
+        return await _users.Find(u => u.UserId == userId).FirstOrDefaultAsync();
+    } 
+
+    //Update user
+    public async Task UpdateAsync(ApplicationUser user)
+    {
+        await _users.ReplaceOneAsync(u => u.Id == user.Id, user);
+    }
+
 }
 
 }
