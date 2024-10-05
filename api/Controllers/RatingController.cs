@@ -102,7 +102,7 @@ namespace api.Controllers
 
         // You would ideally store and retrieve the vendor's FCM token in the database
         // For now, assume that you have the vendor's FCM token.
-        var vendorFcmToken = "cdCg-E5kCY3NXOP3BOtfNj:APA91bEAY2IS4qmgyWRt2PjlT3p2N1keG4tsN7fM8oGJR2rUkvU_tQ7dkP6aRWyjW1qk-ZsDn2k1Y7fF93HA9C1J3Kzfc5ashCmu1hQFxgUr9_AvUk7XwFIfmglSrbhKmBlbb20rgCPC";  // Make sure this is stored in your ApplicationUser model
+        var vendorFcmToken = "";  // Make sure this is stored in your ApplicationUser model
 
         if (!string.IsNullOrEmpty(vendorFcmToken))
         {
