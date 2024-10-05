@@ -4,7 +4,6 @@ using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,9 +23,14 @@ builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<VendorRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<OrderRepository>();
+
 builder.Services.AddScoped<RatingRepository>();
 builder.Services.AddSingleton<FirebaseService>();
 
+
+
+builder.Services.AddScoped<OrderItemRepository>();
+builder.Services.AddScoped<CategoryRepository>();
 
 
 builder.Services.AddScoped<JWTService>();
@@ -49,10 +53,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //Authentication
-builder.Services.AddAuthentication(options => {
+builder.Services.AddAuthentication(options =>
+{
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options => {
+}).AddJwtBearer(options =>
+{
 
     options.Events = new JwtBearerEvents
     {
