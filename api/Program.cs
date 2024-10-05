@@ -4,7 +4,6 @@ using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +22,8 @@ builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<VendorRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<OrderRepository>();
-builder.Services.AddScoped<OrderItemRepository>();  // Register OrderItemRepository
+builder.Services.AddScoped<OrderItemRepository>();
+builder.Services.AddScoped<CategoryRepository>();
 
 builder.Services.AddScoped<JWTService>();
 
