@@ -9,22 +9,21 @@ namespace api.Models
 {
     public class OrderItem
     {
-        public string ProductCustomId { get; set; } = null!;
+        public string ProductId { get; set; } = null!;
         public int Quantity { get; set; }
-        public decimal Price { get; set; }  // Store the price for each product in the order
+        public decimal Price { get; set; }  // Store price of product at time of order
     }
-
 
     public class Order
     {
         [BsonId]
         public ObjectId Id { get; set; }
-
-        public List<OrderItem> Items { get; set; } = new List<OrderItem>();  // Now holds OrderItems
-        public string Status { get; set; } = "Pending"!;
-        public DateTime OrderDate { get; set; } = DateTime.Now;
+        public string OrderId { get; set; } = null!;
         public string CustomerId { get; set; } = null!;
-        public string VendorId { get; set; } = null!;
-        public decimal TotalPrice { get; set; }  // Store total order price
+        public decimal TotalPrice { get; set; }
+        public string Status { get; set; } = "Pending"!;
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime UpdatedDate { get; set; } = DateTime.Now;
+        public List<OrderItem> Products { get; set; } = new List<OrderItem>();  // Changed from Items to Products
     }
 }
