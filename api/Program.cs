@@ -23,6 +23,7 @@ builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<VendorRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<OrderRepository>();
+builder.Services.AddScoped<OrderItemRepository>();  // Register OrderItemRepository
 
 builder.Services.AddScoped<JWTService>();
 
@@ -44,10 +45,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //Authentication
-builder.Services.AddAuthentication(options => {
+builder.Services.AddAuthentication(options =>
+{
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options => {
+}).AddJwtBearer(options =>
+{
 
     options.Events = new JwtBearerEvents
     {

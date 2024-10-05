@@ -11,12 +11,12 @@ namespace api.Controllers
     public class ProductController : Controller
     {
         private readonly ProductRepository _productRepository;
-        private readonly OrderRepository _orderRepository;
+        private readonly OrderItemRepository _orderItemRepository;
 
-        public ProductController(ProductRepository productRepository, OrderRepository orderRepository)
+        public ProductController(ProductRepository productRepository, OrderItemRepository orderItemRepository)
         {
             _productRepository = productRepository;
-            _orderRepository = orderRepository;
+            _orderItemRepository = orderItemRepository;
         }
 
         [HttpGet]
@@ -59,10 +59,7 @@ namespace api.Controllers
 
             do
             {
-
                 customId = "P" + random.Next(0, 99999).ToString("D5");
-
-
                 exists = await _productRepository.getExistingIds(customId);
             }
             while (exists);
@@ -95,15 +92,16 @@ namespace api.Controllers
                 return NotFound($"Product with Custom ID {productId} not found");
             }
 
-            bool isProductInOrders = await _orderRepository.CheckProductInOrdersAsync(productId);
+            bool isProductInOrders = await _orderItemRepository.CheckIfProductInOrderItemsAsync(productId);
             if (isProductInOrders)
             {
                 return BadRequest("Product cannot be deleted because it is part of existing orders.");
             }
 
-            product.IsDeleted = false;
+            product.IsDeleted = true;
             await _productRepository.DeactivateProductAsync(product);
 
+            //////////// NOT WORKING //////////////
             return Ok($"Product with Custom ID {productId} has been deactivated.");
         }
 
@@ -132,11 +130,6 @@ namespace api.Controllers
             }
             return Ok(new { product.ProductId, product.Name, product.Quantity });
         }
-
-
-
-
-
 
     }
 }
