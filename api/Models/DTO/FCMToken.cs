@@ -15,6 +15,7 @@ namespace api.Models.DTO
 
     public string UserId { get; set; } 
     public string FcmTokenValue { get; set; }
+    public string Role { get; set; }
     public DateTime TokenCreatedAt { get; set; } = DateTime.Now;
     }
 }

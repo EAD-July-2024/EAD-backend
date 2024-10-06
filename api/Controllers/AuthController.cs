@@ -15,10 +15,16 @@ namespace api.Controllers
         private readonly UserRepository _userRepository;
         private readonly JWTService _jwtService;
 
-        public AuthController(UserRepository userRepository, JWTService jwtService)
+        private readonly FCMTokenRepository _fCMTokenRepository;
+
+        private readonly FirebaseService _firebaseService;
+
+        public AuthController(UserRepository userRepository, JWTService jwtService, FCMTokenRepository fCMTokenRepository, FirebaseService firebaseService)
         {
             _userRepository = userRepository;
             _jwtService = jwtService;
+            _fCMTokenRepository = fCMTokenRepository;
+            _firebaseService = firebaseService;
         }
 
         //Login
@@ -57,12 +63,22 @@ namespace api.Controllers
             };
             if(model.Role == "CSR") user.IsApproved = true;
             if(model.Role == "Vendor") user.IsApproved = true;
+            if(model.Role == "Customer") user.IsApproved = false;
 
             await _userRepository.CreateAsync(user);
             if(user.Role == "CSR" ) return Ok("User created. User can now login.");
             if(user.Role == "Vendor" ) return Ok("User created. User can now login.");
 
-            await _userRepository.NotifyCSR(); // Notify CSR on new account
+            // After registering the customer, send notification to all CSRs
+            var csrFcmTokens = await _fCMTokenRepository.GetCsrFcmTokensAsync();
+            if (csrFcmTokens.Any())
+        {
+            Console.WriteLine("This if works");
+            var notificationTitle = "New Customer Registration";
+            var notificationBody = $"A new customer, {model.FullName}, has registered in the system.";
+
+            await _firebaseService.SendNotificationToCsrAsync(csrFcmTokens, notificationTitle, notificationBody);
+        }
             return Ok("User created. Pending approval from CSR.");
         }
 
@@ -96,5 +112,29 @@ namespace api.Controllers
             return userId;
         }
 
+
+        //Approve customer by CSR
+        [HttpPut("approveCustomer/{userId}")]
+        public async Task<IActionResult> ApproveCustomer(string userId)
+        {
+            
+            var customer = await _userRepository.GetUserByIdAsync(userId);
+            if (customer == null)
+            {
+                return NotFound(new { message = "Customer not found" });
+            }
+
+            
+            var success = await _userRepository.ApproveCustomerAsync(userId);
+
+            if (success)
+            {
+                return Ok(new { message = "Customer approved successfully" });
+            }
+            else
+            {
+                return BadRequest(new { message = "Failed to approve customer" });
+            }
+        }
     }
 }

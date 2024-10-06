@@ -30,8 +30,15 @@ namespace api.Services
         await _users.Find(u => !u.IsApproved).ToListAsync();
 
 
-    public async Task ApproveUser(string userId) => 
-        await _users.UpdateOneAsync(u => u.Id == ObjectId.Parse(userId), Builders<ApplicationUser>.Update.Set(u => u.IsApproved, true)); 
+    // Method to approve customer
+    public async Task<bool> ApproveCustomerAsync(string userId)
+    {
+        var filter = Builders<ApplicationUser>.Filter.Eq(u => u.UserId, userId);
+        var update = Builders<ApplicationUser>.Update.Set(u => u.IsApproved, true);
+
+        var result = await _users.UpdateOneAsync(filter, update);
+        return result.ModifiedCount > 0;  // Returns true if the customer's status was updated
+    }
     
     public async Task NotifyCSR() =>
         await _users.UpdateManyAsync(u => !u.IsApproved && !u.IsApproved, Builders<ApplicationUser>.Update.Set(u => u.IsApproved, true));
