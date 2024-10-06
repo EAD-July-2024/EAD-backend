@@ -170,29 +170,23 @@ namespace api.Controllers
             return customId;
         }
 
-        // Endpoint to delete a product
-        [HttpDelete("{productId}")]
-        public async Task<IActionResult> DeactivateProduct(string productId)
-        {
 
+        //
+        //Get product details by product custom id
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetByCustomId(string productId)
+        {
             var product = await _productRepository.GetByCustomIdAsync(productId);
             if (product == null)
             {
-                return NotFound($"Product with Custom ID {productId} not found");
+                return NotFound("Product not found");
             }
-
-            bool isProductInOrders = await _orderItemRepository.CheckIfProductInOrderItemsAsync(productId);
-            if (isProductInOrders)
-            {
-                return BadRequest("Product cannot be deleted because it is part of existing orders.");
-            }
-
-            product.IsDeleted = true;
-            await _productRepository.DeactivateProductAsync(product);
-
-            //////////// NOT WORKING //////////////
-            return Ok($"Product with Custom ID {productId} has been deactivated.");
+            return Ok(product);
         }
+
+
+        
+
 
         // Update the stock level of a product
         [HttpPatch("quantity/{productId}")]
@@ -220,5 +214,68 @@ namespace api.Controllers
             return Ok(new { product.ProductId, product.Name, product.Quantity });
         }
 
+        // Endpoint to update IsDeleted status
+        [HttpPut("productDelete")]
+        public async Task<IActionResult> UpdateIsDeleted([FromBody] UpdateIsDeletedRequest request)
+        {
+            
+            
+            bool isProductInOrder = await _productRepository.IsProductInAnyOrderAsync(request.ProductId);
+        
+            if (isProductInOrder)
+            {
+                return BadRequest(new { message = "Cannot delete this product as it is part of an existing order." });
+            }
+        
+           
+            var success = await _productRepository.UpdateIsDeletedAsync(request.ProductId, request.VendorId, request.IsDeleted);
+        
+            if (success)
+            {
+                return Ok(new { message = "Product deletion status updated successfully" });
+            }
+            else
+            {
+                return NotFound(new { message = "Product not found or you're not the owner" });
+            }
+        }
+
+        // Endpoint to update product details
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateProduct([FromForm] Product updatedProduct, string productId, string vendorId, List<IFormFile> newImages)
+        {
+            if (newImages != null && newImages.Count > 5)
+            {
+                return BadRequest("You cannot upload more than 5 images.");
+            }
+
+            // Prepare the image streams for upload
+            var newImageStreams = new List<Stream>();
+            foreach (var image in newImages)
+            {
+                var stream = image.OpenReadStream();
+                newImageStreams.Add(stream);
+            }
+
+            // Perform the update
+            var success = await _productRepository.UpdateProductAsync(productId, vendorId, updatedProduct, newImageStreams);
+
+            if (success)
+            {
+                return Ok(new { message = "Product updated successfully" });
+            }
+            else
+            {
+                return NotFound(new { message = "Product not found or you are not the owner" });
+            }
+        }
+
     }
+
+    public class UpdateIsDeletedRequest
+{
+    public string ProductId { get; set; } = null!;
+    public string VendorId { get; set; } = null!;
+    public bool IsDeleted { get; set; }
+}
 }

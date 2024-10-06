@@ -12,14 +12,14 @@ namespace api.Services
     public class MongoDBService
     {
         private readonly IMongoCollection<Product> _products;
-        private readonly IMongoCollection<Vendor> _vendors;
+        //private readonly IMongoCollection<Vendor> _vendors;
 
         public MongoDBService(IOptions<MongoDBSettings> mongoDBSettings)
         {
             MongoClient client = new MongoClient(mongoDBSettings.Value.ConnectionString);
             IMongoDatabase database = client.GetDatabase(mongoDBSettings.Value.DatabaseName);
             _products = database.GetCollection<Product>(mongoDBSettings.Value.CollectionName);  
-            _vendors = database.GetCollection<Vendor>("vendors");
+            //_vendors = database.GetCollection<Vendor>("vendors");
         }
         
         public async Task CreateAsync(Product product)
@@ -33,15 +33,6 @@ namespace api.Services
             return await _products.Find(new BsonDocument()).ToListAsync();
         }
 
-        // CRUD for Vendors
-        public async Task CreateVendorAsync(Vendor vendor)
-        {
-            await _vendors.InsertOneAsync(vendor);
-        }
-
-        public async Task<List<Vendor>> GetVendorsAsync()
-        {
-            return await _vendors.Find(_ => true).ToListAsync();
-        }
+        
     }
 }
