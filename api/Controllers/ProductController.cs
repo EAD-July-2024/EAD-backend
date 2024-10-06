@@ -72,7 +72,8 @@ namespace api.Controllers
                     CategoryName = category.Name,
                     VendorId = product.VendorId,
                     VendorName = vendor.FullName,
-                    ImageUrls = product.ImageUrls
+                    ImageUrls = product.ImageUrls,
+                    IsDeleted = product.IsDeleted
                 };
 
                 productsWithDetails.Add(productWithDetails);
@@ -120,7 +121,8 @@ namespace api.Controllers
                 CategoryName = category.Name,
                 VendorId = product.VendorId,
                 VendorName = vendor.FullName,
-                ImageUrls = product.ImageUrls
+                ImageUrls = product.ImageUrls,
+                IsDeleted = product.IsDeleted
             };
 
             // Return the product with details

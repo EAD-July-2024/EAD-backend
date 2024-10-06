@@ -24,6 +24,7 @@ namespace api.Services
             var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
 
+
             if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey))
             {
                 throw new InvalidOperationException("AWS credentials not found in environment variables.");
