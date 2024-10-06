@@ -34,6 +34,12 @@ namespace api.Services
             return await _orderItems.Find(o => o.Id == id).FirstOrDefaultAsync();
         }
 
+        // Get OrderItems by Order ID
+        public async Task<List<OrderItem>> GetOrderItemsByOrderIdAsync(string orderId)
+        {
+            return await _orderItems.Find(o => o.OrderId == orderId).ToListAsync();
+        }
+
         // Update an OrderItem
         public async Task UpdateOrderItemAsync(OrderItem updatedOrderItem)
         {

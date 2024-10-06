@@ -10,7 +10,9 @@ public class Product
     public string? Description { get; set; }
     public float Price { get; set; }
     public string CategoryId { get; set; } = null!;
+    // public string CategoryName { get; set; } = null!;
     public string VendorId { get; set; } = null!;
+    // public string VendorName { get; set; } = null!;
     public List<string> ImageUrls { get; set; } = new List<string>();
     public bool IsDeleted { get; set; } = false;
     public int Quantity { get; set; }

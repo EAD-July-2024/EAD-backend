@@ -79,7 +79,7 @@ namespace api.Controllers
                     VendorId = product.VendorId,
                     Quantity = item.Quantity,
                     Price = product.Price,
-                    Status = "Pending",
+                    Status = "Purchased",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 });
@@ -91,7 +91,7 @@ namespace api.Controllers
                 OrderId = customOrderId,
                 CustomerId = request.CustomerId,
                 TotalPrice = totalPrice,
-                Status = "Pending",
+                Status = "Purchased",
                 Note = "",
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
@@ -113,30 +113,88 @@ namespace api.Controllers
 
         // Get all orders
         [HttpGet]
-        public async Task<List<Order>> GetAllOrders()
+        public async Task<IActionResult> GetAllOrdersWithItems()
         {
-            return await _orderRepository.GetAllOrdersAsync();
+            // Get all orders
+            var orders = await _orderRepository.GetAllOrdersAsync();
+
+            // For each order, fetch the corresponding order items
+            var orderDtos = new List<OrderWithItemsDTO>();
+
+            foreach (var order in orders)
+            {
+                // Fetch order items for this order
+                var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(order.OrderId);
+
+                // Map the order and its items to a DTO
+                var orderWithItemsDto = new OrderWithItemsDTO
+                {
+                    Order = order,
+                    OrderItems = orderItems
+                };
+
+                // Add to the list
+                orderDtos.Add(orderWithItemsDto);
+            }
+
+            return Ok(orderDtos);
         }
 
-        // Get order by custom Order ID
+
+        // Get order by Order ID
         [HttpGet("{orderId}")]
-        public async Task<IActionResult> GetOrderByOrderId(string orderId)
+        public async Task<IActionResult> GetOrderByOrderIdWithItems(string orderId)
         {
+            // Fetch the order by its ID
             var order = await _orderRepository.GetOrderByOrderIdAsync(orderId);
             if (order == null)
             {
-                return NotFound($"Order with ID {orderId} not found");
+                return NotFound($"Order with ID {orderId} not found.");
             }
 
-            return Ok(order);
+            // Fetch the corresponding order items
+            var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
+
+            // Combine order and order items into a DTO
+            var orderWithItemsDto = new OrderWithItemsDTO
+            {
+                Order = order,
+                OrderItems = orderItems
+            };
+
+            return Ok(orderWithItemsDto);
         }
+
 
         // Get order using Customer ID
         [HttpGet("getByCustomerId/{customerId}")]
-        public async Task<List<Order>> GetOrdersByCustomer(string customerId)
+        public async Task<IActionResult> GetOrdersByCustomerIdWithItems(string customerId)
         {
-            return await _orderRepository.GetOrdersByCustomerAsync(customerId);
+            // Fetch the orders by CustomerId
+            var orders = await _orderRepository.GetOrdersByCustomerAsync(customerId);
+            if (orders == null || orders.Count == 0)
+            {
+                return NotFound($"No orders found for Customer ID {customerId}.");
+            }
+
+            // Create a list to hold the orders with their items
+            var ordersWithItems = new List<OrderWithItemsDTO>();
+
+            // Fetch the corresponding order items for each order
+            foreach (var order in orders)
+            {
+                var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(order.OrderId);
+                var orderWithItemsDto = new OrderWithItemsDTO
+                {
+                    Order = order,
+                    OrderItems = orderItems
+                };
+                ordersWithItems.Add(orderWithItemsDto);
+            }
+
+            return Ok(ordersWithItems);
         }
+
 
         // Update an existing order
         [HttpPut("{orderId}")]
@@ -245,7 +303,7 @@ namespace api.Controllers
             // Save the updated order back to the repository
             await _orderRepository.UpdateOrderStatusAsync(existingOrder);
 
-            return Ok(existingOrder); // Return the updated order if necessary
+            return Ok(existingOrder);
         }
 
         // // Update order status
