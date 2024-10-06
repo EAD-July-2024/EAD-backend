@@ -110,7 +110,6 @@ namespace api.Controllers
             return Ok(order);
         }
 
-
         // Get all orders
         [HttpGet]
         public async Task<IActionResult> GetAllOrdersWithItems()
@@ -153,9 +152,6 @@ namespace api.Controllers
             return Ok(ordersResponse);
         }
 
-
-
-
         // Get order by Order ID
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderByOrderIdWithItems(string orderId)
@@ -197,7 +193,6 @@ namespace api.Controllers
         }
 
 
-
         // Get order using Customer ID
         [HttpGet("getByCustomerId/{customerId}")]
         public async Task<IActionResult> GetOrdersByCustomerIdWithItems(string customerId)
@@ -209,23 +204,46 @@ namespace api.Controllers
                 return NotFound($"No orders found for Customer ID {customerId}.");
             }
 
-            // Create a list to hold the orders with their items
-            var ordersWithItems = new List<OrderWithItemsDTO>();
+            // Prepare the list to hold the final response
+            var ordersResponse = new List<object>();
 
             // Fetch the corresponding order items for each order
             foreach (var order in orders)
             {
                 var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(order.OrderId);
-                var orderWithItemsDto = new OrderWithItemsDTO
+
+                // Construct the response for each order
+                var orderResponse = new
                 {
-                    Order = order,
-                    OrderItems = orderItems
+                    order.Id,
+                    order.OrderId,
+                    order.CustomerId,
+                    order.TotalPrice,
+                    order.Status,
+                    order.Note,
+                    order.CreatedDate,
+                    order.UpdatedDate,
+                    OrderItems = orderItems.Select(item => new
+                    {
+                        item.Id,
+                        item.OrderId,
+                        item.ProductId,
+                        item.ProductName,
+                        item.VendorId,
+                        item.Quantity,
+                        item.Price,
+                        item.Status,
+                        item.CreatedDate,
+                        item.UpdatedDate
+                    }).ToList()
                 };
-                ordersWithItems.Add(orderWithItemsDto);
+
+                ordersResponse.Add(orderResponse);
             }
 
-            return Ok(ordersWithItems);
+            return Ok(ordersResponse);
         }
+
 
 
         // Update an existing order
