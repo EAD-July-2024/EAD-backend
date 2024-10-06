@@ -71,5 +71,16 @@ namespace api.Services
             // Check if any OrderItem contains the given product ID
             return await _orderItems.Find(o => o.ProductId == productId).AnyAsync();
         }
+
+        // Method to get an order item by OrderId and ProductId
+        public async Task<OrderItem?> GetOrderItemByProductIdAndOrderIdAsync(string orderId, string productId)
+        {
+            var filter = Builders<OrderItem>.Filter.And(
+                Builders<OrderItem>.Filter.Eq(o => o.OrderId, orderId),
+                Builders<OrderItem>.Filter.Eq(o => o.ProductId, productId)
+            );
+
+            return await _orderItems.Find(filter).FirstOrDefaultAsync();
+        }
     }
 }
