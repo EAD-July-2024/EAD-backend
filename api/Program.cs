@@ -23,6 +23,7 @@ builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<VendorRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<OrderRepository>();
+builder.Services.AddScoped<FCMTokenRepository>();
 
 builder.Services.AddScoped<RatingRepository>();
 builder.Services.AddSingleton<FirebaseService>();
