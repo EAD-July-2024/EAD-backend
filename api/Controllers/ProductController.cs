@@ -173,7 +173,7 @@ namespace api.Controllers
 
         //
         //Get product details by product custom id
-        [HttpGet("{productId}")]
+        /*[HttpGet("{productId}")]
         public async Task<IActionResult> GetByCustomId(string productId)
         {
             var product = await _productRepository.GetByCustomIdAsync(productId);
@@ -182,7 +182,7 @@ namespace api.Controllers
                 return NotFound("Product not found");
             }
             return Ok(product);
-        }
+        }*/
 
 
         
