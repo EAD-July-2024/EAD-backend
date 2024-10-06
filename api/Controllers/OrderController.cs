@@ -22,7 +22,6 @@ namespace api.Controllers
         }
 
         // Method to generate a unique Order ID
-        // Method to generate a unique Order ID
         private async Task<string> GenerateUniqueOrderIdAsync()
         {
             var random = new Random();
@@ -58,13 +57,18 @@ namespace api.Controllers
                     return NotFound($"Product with ID {item.ProductId} not found");
                 }
 
-                // // Ensure the product price is valid before using it
-                // if (!float.TryParse(product.Price.ToString(), out float itemPrice))
-                // {
-                //     return BadRequest($"Invalid price format for product ID {item.ProductId}");
-                // }
+                // Check if the requested quantity is available
+                if (product.Quantity < item.Quantity)
+                {
+                    return BadRequest($"Insufficient stock for product ID {item.ProductId}. Available: {product.Quantity}, Requested: {item.Quantity}");
+                }
 
                 totalPrice += product.Price * item.Quantity;
+
+                // Deduct the ordered quantity from the product's available stock
+                product.Quantity -= item.Quantity;
+                await _productRepository.UpdateQuantityAsync(product.ProductId, product.Quantity);
+
 
                 // Add product price to the order item for record keeping
                 processedItems.Add(new OrderItem
@@ -133,37 +137,15 @@ namespace api.Controllers
             return await _orderRepository.GetOrdersByCustomerAsync(customerId);
         }
 
-        // // Update an entire order
-        // [HttpPut("{orderId}")]
-        // public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] Order updatedOrder)
-        // {
-        //     // Fetch the existing order
-        //     var existingOrder = await _orderRepository.GetOrderByOrderIdAsync(orderId);
-        //     if (existingOrder == null)
-        //     {
-        //         return NotFound($"Order with ID {orderId} not found.");
-        //     }
-
-        //     // Check if the order status is not 'Dispatched' or 'Delivered'
-        //     if (existingOrder.Status == "Dispatched" || existingOrder.Status == "Delivered")
-        //     {
-        //         return BadRequest("Cannot update the order as it has already been dispatched or delivered.");
-        //     }
-
-        //     // Set the OrderId to ensure it remains the same
-        //     updatedOrder.OrderId = orderId;
-        //     updatedOrder.CreatedDate = existingOrder.CreatedDate; // Preserve the original created date
-        //     updatedOrder.UpdatedDate = DateTime.Now; // Set updated date to now
-
-        //     // Update the order in the repository
-        //     await _orderRepository.UpdateOrderAsync(updatedOrder);
-        //     return Ok(updatedOrder);
-        // }
-
-        // Update only the total price of an order
         [HttpPut("{orderId}")]
-        public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] UpdateOrderRequest request)
+        public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] UpdateOrderRequest updateOrderRequest)
         {
+            // Validate the request
+            if (updateOrderRequest?.ProductList == null || updateOrderRequest.ProductList.Count == 0)
+            {
+                return BadRequest("Product list cannot be null or empty.");
+            }
+
             // Fetch the existing order
             var existingOrder = await _orderRepository.GetOrderByOrderIdAsync(orderId);
             if (existingOrder == null)
@@ -180,39 +162,40 @@ namespace api.Controllers
             // Initialize total price
             float totalPrice = 0;
 
-            // Update order items based on the product list
-            foreach (var item in request.ProductList)
+            foreach (var productUpdate in updateOrderRequest.ProductList)
             {
                 // Fetch product details by product ID
-                var product = await _productRepository.GetByCustomIdAsync(item.ProductId);
+                var product = await _productRepository.GetByCustomIdAsync(productUpdate.ProductId);
                 if (product == null)
                 {
-                    return NotFound($"Product with ID {item.ProductId} not found");
+                    return NotFound($"Product with ID {productUpdate.ProductId} not found.");
                 }
 
-                // // Ensure the product price is valid before parsing
-                // if (!float.TryParse(product.Price, out float itemPrice))
-                // {
-                //     return BadRequest($"Invalid price format for product ID {item.ProductId}");
-                // }
-
-
-                totalPrice += product.Price * item.Quantity;
-
-                // Update the corresponding OrderItem entry
-                var existingOrderItem = await _orderItemRepository.GetOrderItemByIdAsync(item.ProductId); // Assuming productId maps to orderItem
-                if (existingOrderItem != null)
+                var existingOrderItem = await _orderItemRepository.GetOrderItemByProductIdAndOrderIdAsync(orderId, productUpdate.ProductId);
+                if (existingOrderItem == null)
                 {
-                    existingOrderItem.Quantity = item.Quantity; // Update quantity
-                    existingOrderItem.Price = product.Price; // Update price if necessary
-                    existingOrderItem.UpdatedDate = DateTime.Now; // Update date
-                    await _orderItemRepository.UpdateOrderItemAsync(existingOrderItem); // Save changes
+                    return NotFound($"Order item with OrderId: {orderId} and ProductId: {productUpdate.ProductId} not found.");
                 }
-                else
+
+                // Check if the requested quantity is available in stock
+                if (product.Quantity + existingOrderItem.Quantity < productUpdate.Quantity) // Add back existing order item quantity before comparison
                 {
-                    // If order item doesn't exist, you might want to handle this case appropriately
-                    return NotFound($"OrderItem with Product ID {item.ProductId} not found in the order.");
+                    return BadRequest($"Insufficient stock for product ID {productUpdate.ProductId}. Available: {product.Quantity + existingOrderItem.Quantity}, Requested: {productUpdate.Quantity}");
                 }
+
+                // Deduct the new quantity and restore the old quantity first
+                product.Quantity += existingOrderItem.Quantity; // Restore old quantity back to stock
+                product.Quantity -= productUpdate.Quantity; // Deduct the new quantity
+                await _productRepository.UpdateQuantityAsync(product.ProductId, product.Quantity); // Save updated stock
+
+                // Calculate the total price for the updated order
+                totalPrice += product.Price * productUpdate.Quantity;
+
+                // Update the order item
+                existingOrderItem.Quantity = productUpdate.Quantity; // Update quantity
+                existingOrderItem.Price = product.Price; // Update price
+                existingOrderItem.UpdatedDate = DateTime.Now; // Update date
+                await _orderItemRepository.UpdateOrderItemAsync(existingOrderItem); // Save changes to the order item
             }
 
             // Update the total price in the existing order
@@ -224,6 +207,7 @@ namespace api.Controllers
 
             return Ok(existingOrder);
         }
+
 
         // Update order status
         [HttpPatch("updateStatus/{orderId}")]
@@ -250,8 +234,5 @@ namespace api.Controllers
 
             return Ok(existingOrder); // Return the updated order if necessary
         }
-
-
-
     }
 }

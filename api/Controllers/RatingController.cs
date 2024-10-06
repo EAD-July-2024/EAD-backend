@@ -27,7 +27,8 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RateVendor([FromBody] RatingDTO model){
+        public async Task<IActionResult> RateVendor([FromBody] RatingDTO model)
+        {
 
             var vendor = await _userRepository.GetUserByIdAsync(model.VendorId);
 
@@ -66,9 +67,9 @@ namespace api.Controllers
 
             // Update vendor's average rating
             vendor.AverageRating = await _ratingRepository.CalculateAverageRating(model.VendorId);
-            
+
             await _userRepository.UpdateAsync(vendor);
-    
+
             return Ok("Rating submitted successfully.");
 
         }
@@ -91,28 +92,23 @@ namespace api.Controllers
 
             await _ratingRepository.UpdateRatingAsync(rating);
 
-
-
-
-
             // **Invoke Firebase notification**
-        // Send a notification to the vendor after the customer adds a rating/comment
-        var notificationTitle = "New Rating Received!";
-        var notificationBody = $" stars and a comment: ";
+            // Send a notification to the vendor after the customer adds a rating/comment
+            var notificationTitle = "New Rating Received!";
+            var notificationBody = $" stars and a comment: ";
 
-        // You would ideally store and retrieve the vendor's FCM token in the database
-        // For now, assume that you have the vendor's FCM token.
-        var vendorFcmToken = "";  // Make sure this is stored in your ApplicationUser model
+            // You would ideally store and retrieve the vendor's FCM token in the database
+            // For now, assume that you have the vendor's FCM token.
+            var vendorFcmToken =
+            "dPLfW9Zu-8qXQsnYI17iuf:APA91bE0sxGeVD2lzoA9XDYlS3yiFc5lHbqDqQ4EKgi-eG-5en-Aztu1pYCre00-j2l76LP86J1Qu3PhrDDPBpALqT40OFZ89WvytCPBu-VuJY5O6TsgNDQhmIR5dyjl7rq0fPrqdHEr";  // Make sure this is stored in your ApplicationUser model
 
-        if (!string.IsNullOrEmpty(vendorFcmToken))
-        {
-            Console.WriteLine("Sending notification to vendor...");
-            await _firebaseService.SendNotificationAsync(vendorFcmToken, notificationTitle, notificationBody);
-        }
+            if (!string.IsNullOrEmpty(vendorFcmToken))
+            {
+                Console.WriteLine("Sending notification to vendor...");
+                await _firebaseService.SendNotificationAsync(vendorFcmToken, notificationTitle, notificationBody);
+            }
 
             return Ok("Comment updated successfully.");
         }
-
-        
     }
 }

@@ -110,9 +110,6 @@ namespace api.Controllers
             return Ok(existingOrderItem);
         }
 
-
-
-
         // Delete an OrderItem by ID
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrderItem(string id)
@@ -125,6 +122,20 @@ namespace api.Controllers
 
             await _orderItemRepository.DeleteOrderItemAsync(id);
             return Ok();
+        }
+
+        // Get an OrderItem by OrderId and ProductId
+        [HttpGet("{orderId}/{productId}")]
+        public async Task<IActionResult> GetOrderItem(string orderId, string productId)
+        {
+            var orderItem = await _orderItemRepository.GetOrderItemByProductIdAndOrderIdAsync(orderId, productId);
+
+            if (orderItem == null)
+            {
+                return NotFound($"Order item with OrderId: {orderId} and ProductId: {productId} not found.");
+            }
+
+            return Ok(orderItem);
         }
     }
 }

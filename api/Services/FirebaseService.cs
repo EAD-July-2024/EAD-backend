@@ -4,7 +4,7 @@ using Google.Apis.Auth.OAuth2;
 
 public class FirebaseService
 {
-    private static FirebaseApp _firebaseApp;
+    private static FirebaseApp? _firebaseApp;
 
     public FirebaseService()
     {
@@ -17,7 +17,7 @@ public class FirebaseService
         {
             _firebaseApp = FirebaseApp.Create(new AppOptions()
             {
-                Credential = GoogleCredential.FromFile("C:/Users/sahanp/Desktop/Change/EAD-backend/api/ead-e-commerce-ee253-firebase-adminsdk-6aity-a0398f8b4a.json") // Ensure this is the correct path.
+                Credential = GoogleCredential.FromFile("/Users/SLIIT/Year 04/EAD/Assignment/Work/Repos/Backend/EAD-backend/api/pushnotifications-fb14a-firebase-adminsdk-csz1f-c6e2653937.json")
             });
         }
     }
