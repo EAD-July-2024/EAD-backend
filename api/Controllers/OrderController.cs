@@ -89,9 +89,10 @@ namespace api.Controllers
             var order = new Order
             {
                 OrderId = customOrderId,
-                CustomerId = request.CustomerId, // Use the customer ID from the request
+                CustomerId = request.CustomerId,
                 TotalPrice = totalPrice,
                 Status = "Pending",
+                Note = "",
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             };
@@ -137,6 +138,7 @@ namespace api.Controllers
             return await _orderRepository.GetOrdersByCustomerAsync(customerId);
         }
 
+        // Update an existing order
         [HttpPut("{orderId}")]
         public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] UpdateOrderRequest updateOrderRequest)
         {
@@ -208,7 +210,6 @@ namespace api.Controllers
             return Ok(existingOrder);
         }
 
-
         // Update order status
         [HttpPatch("updateStatus/{orderId}")]
         public async Task<IActionResult> UpdateOrderStatus(string orderId, [FromBody] UpdateStatusRequest request)
@@ -226,13 +227,51 @@ namespace api.Controllers
                 return BadRequest("Cannot update the order status as it has already been dispatched or delivered.");
             }
 
-            // Update the order status in the repository
-            await _orderRepository.UpdateOrderStatusAsync(orderId, request.NewStatus); // Pass orderId and NewStatus directly
+            // Update the status if changed
+            if (!string.IsNullOrEmpty(request.NewStatus))
+            {
+                existingOrder.Status = request.NewStatus;
+            }
 
-            // Update the UpdatedDate in memory (if needed)
+            // Update the note if present in the request
+            if (!string.IsNullOrEmpty(request.Note))
+            {
+                existingOrder.Note = request.Note;
+            }
+
+            // Update the UpdatedDate in memory
             existingOrder.UpdatedDate = DateTime.Now;
+
+            // Save the updated order back to the repository
+            await _orderRepository.UpdateOrderStatusAsync(existingOrder);
 
             return Ok(existingOrder); // Return the updated order if necessary
         }
+
+        // // Update order status
+        // [HttpPatch("updateStatus/{orderId}")]
+        // public async Task<IActionResult> UpdateOrderStatus(string orderId, [FromBody] UpdateStatusRequest request)
+        // {
+        //     // Fetch the existing order
+        //     var existingOrder = await _orderRepository.GetOrderByOrderIdAsync(orderId);
+        //     if (existingOrder == null)
+        //     {
+        //         return NotFound($"Order with ID {orderId} not found.");
+        //     }
+
+        //     // Check if the order status is not 'Dispatched' or 'Delivered'
+        //     if (existingOrder.Status == "Dispatched" || existingOrder.Status == "Delivered")
+        //     {
+        //         return BadRequest("Cannot update the order status as it has already been dispatched or delivered.");
+        //     }
+
+        //     // Update the order status in the repository
+        //     await _orderRepository.UpdateOrderStatusAsync(orderId, request.NewStatus); // Pass orderId and NewStatus directly
+
+        //     // Update the UpdatedDate in memory (if needed)
+        //     existingOrder.UpdatedDate = DateTime.Now;
+
+        //     return Ok(existingOrder); // Return the updated order if necessary
+        // }
     }
 }
