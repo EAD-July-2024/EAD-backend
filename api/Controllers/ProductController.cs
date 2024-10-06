@@ -3,6 +3,7 @@ using api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using api.DTOs;
 
 namespace api.Controllers
 {
@@ -12,18 +13,118 @@ namespace api.Controllers
     {
         private readonly ProductRepository _productRepository;
         private readonly OrderItemRepository _orderItemRepository;
+        private readonly CategoryRepository _categoryRepository;
+        private readonly UserRepository _userRepository;
 
-        public ProductController(ProductRepository productRepository, OrderItemRepository orderItemRepository)
+        public ProductController(ProductRepository productRepository, OrderItemRepository orderItemRepository, CategoryRepository categoryRepository, UserRepository userRepository)
         {
             _productRepository = productRepository;
             _orderItemRepository = orderItemRepository;
+            _categoryRepository = categoryRepository;
+            _userRepository = userRepository;
         }
 
+        // Get all products
+        // [HttpGet]
+        // //[Authorize(Policy = "RequireAdminRole")]
+        // public async Task<List<Product>> Get()
+        // {
+        //     return await _productRepository.GetAsync();
+        // }
+
+        // Get all products with CategoryName and VendorName
         [HttpGet]
-        //[Authorize(Policy = "RequireAdminRole")]
-        public async Task<List<Product>> Get()
+        public async Task<IActionResult> GetProductsWithDetails()
         {
-            return await _productRepository.GetAsync();
+            // Fetch all products
+            var products = await _productRepository.GetAsync();
+
+            // List to hold the result
+            var productsWithDetails = new List<ProductWithDetailsDTO>();
+
+            // For each product, fetch the associated Category and Vendor details
+            foreach (var product in products)
+            {
+                // Fetch category details
+                var category = await _categoryRepository.GetByCustomIdAsync(product.CategoryId);
+                if (category == null)
+                {
+                    return NotFound($"Category with ID {product.CategoryId} not found.");
+                }
+
+                // Fetch vendor details
+                var vendor = await _userRepository.GetUserByIdAsync(product.VendorId);
+                if (vendor == null)
+                {
+                    return NotFound($"Vendor with ID {product.VendorId} not found.");
+                }
+
+                // Create a new ProductWithDetailsDTO
+                var productWithDetails = new ProductWithDetailsDTO
+                {
+                    Id = product.Id.ToString(),
+                    ProductId = product.ProductId,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Price = product.Price,
+                    Quantity = product.Quantity,
+                    CategoryId = product.CategoryId,
+                    CategoryName = category.Name,
+                    VendorId = product.VendorId,
+                    VendorName = vendor.FullName,
+                    ImageUrls = product.ImageUrls
+                };
+
+                productsWithDetails.Add(productWithDetails);
+            }
+
+            // Return the list of products with their details
+            return Ok(productsWithDetails);
+        }
+
+        // Get product details by productId with CategoryName and VendorName
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetByCustomId(string productId)
+        {
+            // Fetch the product by productId
+            var product = await _productRepository.GetByCustomIdAsync(productId);
+            if (product == null)
+            {
+                return NotFound($"Product with ID {productId} not found.");
+            }
+
+            // Fetch category details
+            var category = await _categoryRepository.GetByCustomIdAsync(product.CategoryId);
+            if (category == null)
+            {
+                return NotFound($"Category with ID {product.CategoryId} not found.");
+            }
+
+            // Fetch vendor details
+            var vendor = await _userRepository.GetUserByIdAsync(product.VendorId);
+            if (vendor == null)
+            {
+                return NotFound($"Vendor with ID {product.VendorId} not found.");
+            }
+
+            // Create a new ProductWithDetailsDTO
+            var productWithDetails = new ProductWithDetailsDTO
+            {
+                Id = product.Id.ToString(),
+                ProductId = product.ProductId,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                Quantity = product.Quantity,
+                CategoryId = product.CategoryId,
+                CategoryName = category.Name,
+                VendorId = product.VendorId,
+                VendorName = vendor.FullName,
+                ImageUrls = product.ImageUrls
+            };
+
+            // Return the product with details
+            return Ok(productWithDetails);
         }
 
         [HttpPost]
@@ -66,20 +167,6 @@ namespace api.Controllers
 
             return customId;
         }
-
-        //
-        //Get product details by product custom id
-        [HttpGet("{productId}")]
-        public async Task<IActionResult> GetByCustomId(string productId)
-        {
-            var product = await _productRepository.GetByCustomIdAsync(productId);
-            if (product == null)
-            {
-                return NotFound("Product not found");
-            }
-            return Ok(product);
-        }
-
 
         // Endpoint to delete a product
         [HttpDelete("{productId}")]
