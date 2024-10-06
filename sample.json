@@ -1,0 +1,42 @@
+{
+  "id": {
+    "timestamp": 1728199865,
+    "machine": 9664239,
+    "pid": 24742,
+    "increment": 6300354,
+    "creationTime": "2024-10-06T07:31:05Z"
+  },
+  "orderId": "O00039",
+  "customerId": "CSR837463",
+  "totalPrice": 20000,
+  "status": "Delivered",
+  "note": "",
+  "createdDate": "2024-10-06T07:31:05.244Z",
+  "updatedDate": "2024-10-06T08:55:38.414Z",
+  "orderItems": [
+    {
+      "id": "67023cb99376ef60a66022c3",
+      "orderId": "O00039",
+      "productId": "P61362",
+      "productName": "QQQ",
+      "vendorId": "VEND609551",
+      "quantity": 10,
+      "price": 1000,
+      "status": "Delivered",
+      "createdDate": "2024-10-06T07:31:05.103Z",
+      "updatedDate": "2024-10-06T08:55:22.496Z"
+    },
+    {
+      "id": "67023cb99376ef60a66022c4",
+      "orderId": "O00039",
+      "productId": "P46398",
+      "productName": "Test Product",
+      "vendorId": "VEND609551",
+      "quantity": 20,
+      "price": 500,
+      "status": "Delivered",
+      "createdDate": "2024-10-06T07:31:05.242Z",
+      "updatedDate": "2024-10-06T08:55:38.286Z"
+    }
+  ]
+}
