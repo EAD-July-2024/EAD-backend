@@ -33,9 +33,10 @@ namespace api.Services
             await _orders.Find(new BsonDocument()).ToListAsync();
 
         // Get order by custom Order ID
-        public async Task<Order?> GetOrderByOrderIdAsync(string orderId) =>
-            await _orders.Find(order => order.OrderId == orderId).FirstOrDefaultAsync();
-
+        public async Task<Order?> GetOrderByOrderIdAsync(string orderId)
+        {
+            return await _orders.Find(order => order.OrderId == orderId).FirstOrDefaultAsync();
+        }
         // Update an existing order
         public async Task UpdateOrderAsync(Order order)
         {
