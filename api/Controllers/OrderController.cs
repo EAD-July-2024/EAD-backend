@@ -79,7 +79,7 @@ namespace api.Controllers
                     VendorId = product.VendorId,
                     Quantity = item.Quantity,
                     Price = product.Price,
-                    Status = "Pending",
+                    Status = "Purchased",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 });
@@ -89,9 +89,10 @@ namespace api.Controllers
             var order = new Order
             {
                 OrderId = customOrderId,
-                CustomerId = request.CustomerId, // Use the customer ID from the request
+                CustomerId = request.CustomerId,
                 TotalPrice = totalPrice,
-                Status = "Pending",
+                Status = "Purchased",
+                Note = "",
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             };
@@ -109,34 +110,143 @@ namespace api.Controllers
             return Ok(order);
         }
 
-
         // Get all orders
         [HttpGet]
-        public async Task<List<Order>> GetAllOrders()
+        public async Task<IActionResult> GetAllOrdersWithItems()
         {
-            return await _orderRepository.GetAllOrdersAsync();
+            var orders = await _orderRepository.GetAllOrdersAsync();
+            var ordersResponse = new List<object>();
+
+            foreach (var order in orders)
+            {
+                var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(order.OrderId);
+
+                var orderResponse = new
+                {
+                    order.Id,
+                    order.OrderId,
+                    order.CustomerId,
+                    order.TotalPrice,
+                    order.Status,
+                    order.Note,
+                    order.CreatedDate,
+                    order.UpdatedDate,
+                    OrderItems = orderItems.Select(item => new
+                    {
+                        item.Id,
+                        item.OrderId,
+                        item.ProductId,
+                        item.ProductName,
+                        item.VendorId,
+                        item.Quantity,
+                        item.Price,
+                        item.Status,
+                        item.CreatedDate,
+                        item.UpdatedDate
+                    }).ToList()
+                };
+
+                ordersResponse.Add(orderResponse);
+            }
+
+            return Ok(ordersResponse);
         }
 
-        // Get order by custom Order ID
+        // Get order by Order ID
         [HttpGet("{orderId}")]
-        public async Task<IActionResult> GetOrderByOrderId(string orderId)
+        public async Task<IActionResult> GetOrderByOrderIdWithItems(string orderId)
         {
             var order = await _orderRepository.GetOrderByOrderIdAsync(orderId);
             if (order == null)
             {
-                return NotFound($"Order with ID {orderId} not found");
+                return NotFound($"Order with ID {orderId} not found.");
             }
 
-            return Ok(order);
+            var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
+
+            var orderResponse = new
+            {
+                order.Id,
+                order.OrderId,
+                order.CustomerId,
+                order.TotalPrice,
+                order.Status,
+                order.Note,
+                order.CreatedDate,
+                order.UpdatedDate,
+                OrderItems = orderItems.Select(item => new
+                {
+                    item.Id,
+                    item.OrderId,
+                    item.ProductId,
+                    item.ProductName,
+                    item.VendorId,
+                    item.Quantity,
+                    item.Price,
+                    item.Status,
+                    item.CreatedDate,
+                    item.UpdatedDate
+                }).ToList()
+            };
+
+            return Ok(orderResponse);
         }
+
 
         // Get order using Customer ID
         [HttpGet("getByCustomerId/{customerId}")]
-        public async Task<List<Order>> GetOrdersByCustomer(string customerId)
+        public async Task<IActionResult> GetOrdersByCustomerIdWithItems(string customerId)
         {
-            return await _orderRepository.GetOrdersByCustomerAsync(customerId);
+            // Fetch the orders by CustomerId
+            var orders = await _orderRepository.GetOrdersByCustomerAsync(customerId);
+            if (orders == null || orders.Count == 0)
+            {
+                return NotFound($"No orders found for Customer ID {customerId}.");
+            }
+
+            // Prepare the list to hold the final response
+            var ordersResponse = new List<object>();
+
+            // Fetch the corresponding order items for each order
+            foreach (var order in orders)
+            {
+                var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(order.OrderId);
+
+                // Construct the response for each order
+                var orderResponse = new
+                {
+                    order.Id,
+                    order.OrderId,
+                    order.CustomerId,
+                    order.TotalPrice,
+                    order.Status,
+                    order.Note,
+                    order.CreatedDate,
+                    order.UpdatedDate,
+                    OrderItems = orderItems.Select(item => new
+                    {
+                        item.Id,
+                        item.OrderId,
+                        item.ProductId,
+                        item.ProductName,
+                        item.VendorId,
+                        item.Quantity,
+                        item.Price,
+                        item.Status,
+                        item.CreatedDate,
+                        item.UpdatedDate
+                    }).ToList()
+                };
+
+                ordersResponse.Add(orderResponse);
+            }
+
+            return Ok(ordersResponse);
         }
 
+
+
+        // Update an existing order
         [HttpPut("{orderId}")]
         public async Task<IActionResult> UpdateOrder(string orderId, [FromBody] UpdateOrderRequest updateOrderRequest)
         {
@@ -208,7 +318,6 @@ namespace api.Controllers
             return Ok(existingOrder);
         }
 
-
         // Update order status
         [HttpPatch("updateStatus/{orderId}")]
         public async Task<IActionResult> UpdateOrderStatus(string orderId, [FromBody] UpdateStatusRequest request)
@@ -226,13 +335,51 @@ namespace api.Controllers
                 return BadRequest("Cannot update the order status as it has already been dispatched or delivered.");
             }
 
-            // Update the order status in the repository
-            await _orderRepository.UpdateOrderStatusAsync(orderId, request.NewStatus); // Pass orderId and NewStatus directly
+            // Update the status if changed
+            if (!string.IsNullOrEmpty(request.NewStatus))
+            {
+                existingOrder.Status = request.NewStatus;
+            }
 
-            // Update the UpdatedDate in memory (if needed)
+            // Update the note if present in the request
+            if (!string.IsNullOrEmpty(request.Note))
+            {
+                existingOrder.Note = request.Note;
+            }
+
+            // Update the UpdatedDate in memory
             existingOrder.UpdatedDate = DateTime.Now;
 
-            return Ok(existingOrder); // Return the updated order if necessary
+            // Save the updated order back to the repository
+            await _orderRepository.UpdateOrderStatusAsync(existingOrder);
+
+            return Ok(existingOrder);
         }
+
+        // // Update order status
+        // [HttpPatch("updateStatus/{orderId}")]
+        // public async Task<IActionResult> UpdateOrderStatus(string orderId, [FromBody] UpdateStatusRequest request)
+        // {
+        //     // Fetch the existing order
+        //     var existingOrder = await _orderRepository.GetOrderByOrderIdAsync(orderId);
+        //     if (existingOrder == null)
+        //     {
+        //         return NotFound($"Order with ID {orderId} not found.");
+        //     }
+
+        //     // Check if the order status is not 'Dispatched' or 'Delivered'
+        //     if (existingOrder.Status == "Dispatched" || existingOrder.Status == "Delivered")
+        //     {
+        //         return BadRequest("Cannot update the order status as it has already been dispatched or delivered.");
+        //     }
+
+        //     // Update the order status in the repository
+        //     await _orderRepository.UpdateOrderStatusAsync(orderId, request.NewStatus); // Pass orderId and NewStatus directly
+
+        //     // Update the UpdatedDate in memory (if needed)
+        //     existingOrder.UpdatedDate = DateTime.Now;
+
+        //     return Ok(existingOrder); // Return the updated order if necessary
+        // }
     }
 }

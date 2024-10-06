@@ -14,7 +14,7 @@ namespace api.Models
         public string VendorId { get; set; } = null!;
         public int Quantity { get; set; }
         public float Price { get; set; }
-        public string Status { get; set; } = "Pending"!;
+        public string Status { get; set; } = "Purchased";
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
     }
