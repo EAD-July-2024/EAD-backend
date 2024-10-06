@@ -10,24 +10,48 @@ namespace api.Services
 {
     public class VendorRepository
     {
-        private readonly IMongoCollection<Vendor> _vendors;
-        
+        private readonly IMongoCollection<ApplicationUser> _users;
+
         public VendorRepository(IOptions<MongoDBSettings> mongoDBSettings)
         {
-            MongoClient client = new MongoClient(mongoDBSettings.Value.ConnectionString);
-            IMongoDatabase database = client.GetDatabase(mongoDBSettings.Value.DatabaseName);
-            //_products = database.GetCollection<Product>(mongoDBSettings.Value.CollectionName);  
-            _vendors = database.GetCollection<Vendor>("vendors");
+            var client = new MongoClient(mongoDBSettings.Value.ConnectionString);
+        var database = client.GetDatabase(mongoDBSettings.Value.DatabaseName);
+        _users = database.GetCollection<ApplicationUser>("Users");
         }
 
-        public async Task CreateVendorAsync(Vendor vendor)
+        // Get vendor details with ratings and customer details
+        public async Task<ApplicationUser?> GetVendorWithRatingsAsync(string vendorId)
         {
-            await _vendors.InsertOneAsync(vendor);
+            var filter = Builders<ApplicationUser>.Filter.Eq(u => u.UserId, vendorId) & Builders<ApplicationUser>.Filter.Eq(u => u.Role, "Vendor");
+            var vendor = await _users.Find(filter).FirstOrDefaultAsync();
+    
+            if (vendor != null)
+            {
+                // Optionally, you can calculate the average rating again if needed:
+                if (vendor.Ratings.Count > 0)
+                {
+                    vendor.AverageRating = vendor.Ratings.Average(r => r.Stars);
+                }
+            }
+    
+            return vendor;
         }
-
-        public async Task<List<Vendor>> GetVendorsAsync()
+    
+        // Get all vendors with their ratings and customer details
+        public async Task<List<ApplicationUser>> GetAllVendorsWithRatingsAsync()
         {
-            return await _vendors.Find(_ => true).ToListAsync();
+            var filter = Builders<ApplicationUser>.Filter.Eq(u => u.Role, "Vendor");
+            var vendors = await _users.Find(filter).ToListAsync();
+    
+            foreach (var vendor in vendors)
+            {
+                if (vendor.Ratings.Count > 0)
+                {
+                    vendor.AverageRating = vendor.Ratings.Average(r => r.Stars);
+                }
+            }
+    
+            return vendors;
         }
     }
 }
