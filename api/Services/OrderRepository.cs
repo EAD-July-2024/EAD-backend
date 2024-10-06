@@ -48,14 +48,21 @@ namespace api.Services
         }
 
         // Update order status only
-        public async Task UpdateOrderStatusAsync(string orderId, string status)
-        {
-            var filter = Builders<Order>.Filter.Eq(o => o.OrderId, orderId);
-            var update = Builders<Order>.Update
-                .Set(o => o.Status, status)
-                .Set(o => o.UpdatedDate, DateTime.Now);
+        // public async Task UpdateOrderStatusAsync(string orderId, string status)
+        // {
+        //     var filter = Builders<Order>.Filter.Eq(o => o.OrderId, orderId);
+        //     var update = Builders<Order>.Update
+        //         .Set(o => o.Status, status)
+        //         .Set(o => o.UpdatedDate, DateTime.Now);
 
-            await _orders.UpdateOneAsync(filter, update);
+        //     await _orders.UpdateOneAsync(filter, update);
+        // }
+
+        // Update order status only
+        public async Task UpdateOrderStatusAsync(Order order)
+        {
+            var filter = Builders<Order>.Filter.Eq(o => o.Id, order.Id);
+            await _orders.ReplaceOneAsync(filter, order);
         }
 
         // Update only the total price of the order
