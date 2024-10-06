@@ -14,5 +14,7 @@ namespace api.DTOs
         public string VendorName { get; set; }
         public List<string> ImageUrls { get; set; } = new List<string>();
 
+        public bool IsDeleted { get; set; }
+
     }
 }
