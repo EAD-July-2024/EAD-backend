@@ -33,9 +33,10 @@ namespace api.Services
             await _orders.Find(new BsonDocument()).ToListAsync();
 
         // Get order by custom Order ID
-        public async Task<Order?> GetOrderByOrderIdAsync(string orderId) =>
-            await _orders.Find(order => order.OrderId == orderId).FirstOrDefaultAsync();
-
+        public async Task<Order?> GetOrderByOrderIdAsync(string orderId)
+        {
+            return await _orders.Find(order => order.OrderId == orderId).FirstOrDefaultAsync();
+        }
         // Update an existing order
         public async Task UpdateOrderAsync(Order order)
         {
@@ -71,6 +72,17 @@ namespace api.Services
             var filter = Builders<Order>.Filter.Eq(o => o.OrderId, orderId);
             var update = Builders<Order>.Update
                 .Set(o => o.TotalPrice, totalPrice)
+                .Set(o => o.UpdatedDate, DateTime.Now);
+
+            await _orders.UpdateOneAsync(filter, update);
+        }
+
+        // Update order status to dilivered
+        public async Task UpdateOrderStatusToDeliveredAsync(string orderId, string status)
+        {
+            var filter = Builders<Order>.Filter.Eq(o => o.OrderId, orderId);
+            var update = Builders<Order>.Update
+                .Set(o => o.Status, status)
                 .Set(o => o.UpdatedDate, DateTime.Now);
 
             await _orders.UpdateOneAsync(filter, update);
