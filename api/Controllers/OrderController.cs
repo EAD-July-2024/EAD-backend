@@ -79,7 +79,7 @@ namespace api.Controllers
                     VendorId = product.VendorId,
                     Quantity = item.Quantity,
                     Price = product.Price,
-                    Status = "Pending",
+                    Status = "Purchased",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 });
@@ -91,7 +91,7 @@ namespace api.Controllers
                 OrderId = customOrderId,
                 CustomerId = request.CustomerId,
                 TotalPrice = totalPrice,
-                Status = "Pending",
+                Status = "Purchased",
                 Note = "",
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
@@ -245,7 +245,7 @@ namespace api.Controllers
             // Save the updated order back to the repository
             await _orderRepository.UpdateOrderStatusAsync(existingOrder);
 
-            return Ok(existingOrder); // Return the updated order if necessary
+            return Ok(existingOrder);
         }
 
         // // Update order status

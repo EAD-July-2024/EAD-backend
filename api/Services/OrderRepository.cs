@@ -75,5 +75,16 @@ namespace api.Services
 
             await _orders.UpdateOneAsync(filter, update);
         }
+
+        // Update order status to dilivered
+        public async Task UpdateOrderStatusToDeliveredAsync(string orderId, string status)
+        {
+            var filter = Builders<Order>.Filter.Eq(o => o.OrderId, orderId);
+            var update = Builders<Order>.Update
+                .Set(o => o.Status, status)
+                .Set(o => o.UpdatedDate, DateTime.Now);
+
+            await _orders.UpdateOneAsync(filter, update);
+        }
     }
 }
