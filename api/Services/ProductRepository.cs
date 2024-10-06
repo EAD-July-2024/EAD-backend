@@ -11,6 +11,7 @@ namespace api.Services
     public class ProductRepository
     {
         private readonly IMongoCollection<Product> _products;
+        private readonly IMongoCollection<OrderItem> _orderItems;
         private readonly IAmazonS3 _s3Client;
         private const string BucketName = "eadbucket";
 
@@ -19,10 +20,13 @@ namespace api.Services
             MongoClient client = new MongoClient(mongoDBSettings.Value.ConnectionString);
             IMongoDatabase database = client.GetDatabase(mongoDBSettings.Value.DatabaseName);
             _products = database.GetCollection<Product>(mongoDBSettings.Value.CollectionName);
+            _orderItems = database.GetCollection<OrderItem>("OrderItems");
+
 
             // // Retrieve AWS credentials from environment variables
             var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+
 
 
             if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey))
@@ -121,5 +125,79 @@ namespace api.Services
             return await _products.Find(p => p.Quantity <= threshold).ToListAsync();
         }
 
+        
+
+        // Update product details
+        public async Task<bool> UpdateProductAsync(string productId, string vendorId, Product updatedProduct, List<Stream> newImageStreams = null)
+        {
+            var filter = Builders<Product>.Filter.Eq(p => p.ProductId, productId) & Builders<Product>.Filter.Eq(p => p.VendorId, vendorId);
+
+            var product = await _products.Find(filter).FirstOrDefaultAsync();
+            if (product == null)
+            {
+                return false; // Product not found or vendor doesn't own the product
+            }
+
+            // Update fields
+            var updateDef = Builders<Product>.Update
+                .Set(p => p.Name, updatedProduct.Name)
+                .Set(p => p.Description, updatedProduct.Description)
+                .Set(p => p.Price, updatedProduct.Price)
+                .Set(p => p.CategoryId, updatedProduct.CategoryId);
+
+            // Handle image update logic
+            if (newImageStreams != null && newImageStreams.Count > 0)
+            {
+                if (product.ImageUrls.Count + newImageStreams.Count > 5)
+                {
+                    throw new InvalidOperationException("You cannot have more than 5 images for a product.");
+                }
+
+                // Remove excess images if necessary to keep the total count at 5
+                int removeCount = (product.ImageUrls.Count + newImageStreams.Count) - 5;
+                for (int i = 0; i < removeCount; i++)
+                {
+                    product.ImageUrls.RemoveAt(0);  // Remove from the front or oldest image
+                }
+
+                // Upload new images and add to ImageUrls
+                foreach (var stream in newImageStreams)
+                {
+                    var fileName = $"{product.ProductId}_image_{Guid.NewGuid()}.jpg";
+                    var imageUrl = await UploadImageAsync(fileName, stream);
+                    product.ImageUrls.Add(imageUrl);
+                }
+            }
+
+            updateDef = updateDef.Set(p => p.ImageUrls, product.ImageUrls);
+            var result = await _products.UpdateOneAsync(filter, updateDef);
+            return result.ModifiedCount > 0;
+        }
+
+
+
+
+
+
+         // Method to check if product is part of any order
+        public async Task<bool> IsProductInAnyOrderAsync(string productId)
+        {
+            var filter = Builders<OrderItem>.Filter.Eq(oi => oi.ProductId, productId);
+            var orderItem = await _orderItems.Find(filter).FirstOrDefaultAsync();
+            return orderItem != null; // Returns true if product exists in any order
+        }
+
+        // Update the IsDeleted 
+    public async Task<bool> UpdateIsDeletedAsync(string productId, string vendorId, bool isDeleted)
+    {
+        var filter = Builders<Product>.Filter.Eq(p => p.ProductId, productId) &
+                     Builders<Product>.Filter.Eq(p => p.VendorId, vendorId);
+        var update = Builders<Product>.Update.Set(p => p.IsDeleted, isDeleted);
+
+        var result = await _products.UpdateOneAsync(filter, update);
+        return result.ModifiedCount > 0;
+    }
+
+        
     }
 }
