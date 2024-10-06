@@ -23,9 +23,10 @@ namespace api.Services
             _orderItems = database.GetCollection<OrderItem>("OrderItems");
 
 
-            // // Retrieve AWS credentials from environment variables
+            // // // Retrieve AWS credentials from environment variables
             var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+
 
 
 
@@ -125,7 +126,7 @@ namespace api.Services
             return await _products.Find(p => p.Quantity <= threshold).ToListAsync();
         }
 
-        
+
 
         // Update product details
         public async Task<bool> UpdateProductAsync(string productId, string vendorId, Product updatedProduct, List<Stream> newImageStreams = null)
@@ -179,7 +180,7 @@ namespace api.Services
 
 
 
-         // Method to check if product is part of any order
+        // Method to check if product is part of any order
         public async Task<bool> IsProductInAnyOrderAsync(string productId)
         {
             var filter = Builders<OrderItem>.Filter.Eq(oi => oi.ProductId, productId);
@@ -188,16 +189,16 @@ namespace api.Services
         }
 
         // Update the IsDeleted 
-    public async Task<bool> UpdateIsDeletedAsync(string productId, string vendorId, bool isDeleted)
-    {
-        var filter = Builders<Product>.Filter.Eq(p => p.ProductId, productId) &
-                     Builders<Product>.Filter.Eq(p => p.VendorId, vendorId);
-        var update = Builders<Product>.Update.Set(p => p.IsDeleted, isDeleted);
+        public async Task<bool> UpdateIsDeletedAsync(string productId, string vendorId, bool isDeleted)
+        {
+            var filter = Builders<Product>.Filter.Eq(p => p.ProductId, productId) &
+                         Builders<Product>.Filter.Eq(p => p.VendorId, vendorId);
+            var update = Builders<Product>.Update.Set(p => p.IsDeleted, isDeleted);
 
-        var result = await _products.UpdateOneAsync(filter, update);
-        return result.ModifiedCount > 0;
-    }
+            var result = await _products.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
 
-        
+
     }
 }
