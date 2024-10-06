@@ -26,7 +26,7 @@ namespace api.Controllers
 
         if (existingToken == null)
         {
-            await _fcmTokenRepository.StoreTokenAsync(request.UserId, request.FcmToken);
+            await _fcmTokenRepository.StoreTokenAsync(request.UserId, request.FcmToken, request.Role);
         }
         else
         {
@@ -41,5 +41,7 @@ namespace api.Controllers
 {
     public string UserId { get; set; }
     public string FcmToken { get; set; }
+
+    public string Role { get; set; }
 }
 }

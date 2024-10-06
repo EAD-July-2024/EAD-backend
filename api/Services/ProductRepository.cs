@@ -128,23 +128,23 @@ namespace api.Services
         
 
         // Update product details
-        public async Task<bool> UpdateProductAsync(string productId, string vendorId, Product updatedProduct, List<Stream> newImageStreams = null)
+        public async Task<bool> UpdateProductAsync(string productId, Product updatedProduct, List<Stream> newImageStreams = null)
         {
-            var filter = Builders<Product>.Filter.Eq(p => p.ProductId, productId) & Builders<Product>.Filter.Eq(p => p.VendorId, vendorId);
-
+            var filter = Builders<Product>.Filter.Eq(p => p.ProductId, productId);
+        
             var product = await _products.Find(filter).FirstOrDefaultAsync();
             if (product == null)
             {
-                return false; // Product not found or vendor doesn't own the product
+                return false; // Product not found
             }
-
+        
             // Update fields
             var updateDef = Builders<Product>.Update
                 .Set(p => p.Name, updatedProduct.Name)
                 .Set(p => p.Description, updatedProduct.Description)
                 .Set(p => p.Price, updatedProduct.Price)
                 .Set(p => p.CategoryId, updatedProduct.CategoryId);
-
+        
             // Handle image update logic
             if (newImageStreams != null && newImageStreams.Count > 0)
             {
@@ -152,14 +152,14 @@ namespace api.Services
                 {
                     throw new InvalidOperationException("You cannot have more than 5 images for a product.");
                 }
-
+        
                 // Remove excess images if necessary to keep the total count at 5
                 int removeCount = (product.ImageUrls.Count + newImageStreams.Count) - 5;
                 for (int i = 0; i < removeCount; i++)
                 {
                     product.ImageUrls.RemoveAt(0);  // Remove from the front or oldest image
                 }
-
+        
                 // Upload new images and add to ImageUrls
                 foreach (var stream in newImageStreams)
                 {
@@ -168,11 +168,12 @@ namespace api.Services
                     product.ImageUrls.Add(imageUrl);
                 }
             }
-
+        
             updateDef = updateDef.Set(p => p.ImageUrls, product.ImageUrls);
             var result = await _products.UpdateOneAsync(filter, updateDef);
             return result.ModifiedCount > 0;
         }
+
 
 
 

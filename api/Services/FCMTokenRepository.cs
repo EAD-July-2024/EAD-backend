@@ -6,6 +6,7 @@ using api.Models.DTO;
 using MongoDB.Driver;
 using Microsoft.Extensions.Options;
 using api.Models;
+using MongoDB.Bson;
 
 namespace api.Services
 {
@@ -21,12 +22,13 @@ namespace api.Services
         }
 
 
-        public async Task StoreTokenAsync(string userId, string token)
+        public async Task StoreTokenAsync(string userId, string token, string role)
         {
             var fcmToken = new FCMToken
             {
                 UserId = userId,
-                FcmTokenValue = token
+                FcmTokenValue = token,
+                Role = role
             };
     
             await _fcmTokens.InsertOneAsync(fcmToken);
@@ -43,6 +45,17 @@ namespace api.Services
             var update = Builders<FCMToken>.Update.Set(t => t.FcmTokenValue, token)
                                                   .Set(t => t.TokenCreatedAt, DateTime.Now);
             await _fcmTokens.UpdateOneAsync(filter, update);
+        }
+
+
+        // Method to get FCM tokens of all CSRs
+        public async Task<List<string>> GetCsrFcmTokensAsync()
+        {
+            Console.WriteLine("Getting CSR FCM tokens");
+            var filter = Builders<FCMToken>.Filter.Regex(t => t.UserId, new BsonRegularExpression("^CSR"));
+            var tokens = await _fcmTokens.Find(filter).ToListAsync();
+             Console.WriteLine("Got CSR FCM tokens: " + tokens);
+            return tokens.Select(t => t.FcmTokenValue).ToList();  
         }
     }
 }

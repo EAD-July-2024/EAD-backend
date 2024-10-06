@@ -17,7 +17,7 @@ public class FirebaseService
         {
             _firebaseApp = FirebaseApp.Create(new AppOptions()
             {
-                Credential = GoogleCredential.FromFile("/Users/SLIIT/Year 04/EAD/Assignment/Work/Repos/Backend/EAD-backend/api/pushnotifications-fb14a-firebase-adminsdk-csz1f-c6e2653937.json")
+                Credential = GoogleCredential.FromFile("C:/Users/sahanp/Desktop/d/EAD-backend/api/ead-e-commerce-ee253-firebase-adminsdk-6aity-2786f247d3.json")
             });
         }
     }
@@ -38,5 +38,15 @@ public class FirebaseService
         // Send a message to the device corresponding to the provided token.
         string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
         Console.WriteLine("Successfully sent message: " + response);
+    }
+
+    // Method to send notifications to multiple tokens
+    public async Task SendNotificationToCsrAsync(List<string> fcmTokens, string title, string body)
+    {
+        foreach (var token in fcmTokens)
+        {
+            await SendNotificationAsync(token, title, body);  // Assuming you have a method to send individual notifications
+            Console.WriteLine("This hit " );
+        }
     }
 }

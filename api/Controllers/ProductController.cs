@@ -241,14 +241,14 @@ namespace api.Controllers
         }
 
         // Endpoint to update product details
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateProduct([FromForm] Product updatedProduct, string productId, string vendorId, List<IFormFile> newImages)
+        [HttpPut("update/{productId}")]
+        public async Task<IActionResult> UpdateProduct([FromRoute] string productId, [FromForm] Product updatedProduct, List<IFormFile> newImages)
         {
             if (newImages != null && newImages.Count > 5)
             {
                 return BadRequest("You cannot upload more than 5 images.");
             }
-
+        
             // Prepare the image streams for upload
             var newImageStreams = new List<Stream>();
             foreach (var image in newImages)
@@ -256,19 +256,20 @@ namespace api.Controllers
                 var stream = image.OpenReadStream();
                 newImageStreams.Add(stream);
             }
-
+        
             // Perform the update
-            var success = await _productRepository.UpdateProductAsync(productId, vendorId, updatedProduct, newImageStreams);
-
+            var success = await _productRepository.UpdateProductAsync(productId, updatedProduct, newImageStreams);
+        
             if (success)
             {
                 return Ok(new { message = "Product updated successfully" });
             }
             else
             {
-                return NotFound(new { message = "Product not found or you are not the owner" });
+                return NotFound(new { message = "Product not found" });
             }
         }
+
 
     }
 
