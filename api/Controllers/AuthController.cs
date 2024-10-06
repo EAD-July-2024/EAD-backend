@@ -38,7 +38,7 @@ namespace api.Controllers
             }
 
             var token = _jwtService.GenerateJwtToken(user);
-            return Ok(new { Token = token, Role = user.Role, Email = user.Email, Name = user.FullName });
+            return Ok(new { Token = token, Role = user.Role, Email = user.Email, Name = user.FullName, UserId = user.UserId });
         }
 
         [HttpPost("register")]
