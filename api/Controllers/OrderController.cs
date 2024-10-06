@@ -110,59 +110,86 @@ namespace api.Controllers
             return Ok(order);
         }
 
-
         // Get all orders
         [HttpGet]
         public async Task<IActionResult> GetAllOrdersWithItems()
         {
-            // Get all orders
             var orders = await _orderRepository.GetAllOrdersAsync();
-
-            // For each order, fetch the corresponding order items
-            var orderDtos = new List<OrderWithItemsDTO>();
+            var ordersResponse = new List<object>();
 
             foreach (var order in orders)
             {
-                // Fetch order items for this order
                 var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(order.OrderId);
 
-                // Map the order and its items to a DTO
-                var orderWithItemsDto = new OrderWithItemsDTO
+                var orderResponse = new
                 {
-                    Order = order,
-                    OrderItems = orderItems
+                    order.Id,
+                    order.OrderId,
+                    order.CustomerId,
+                    order.TotalPrice,
+                    order.Status,
+                    order.Note,
+                    order.CreatedDate,
+                    order.UpdatedDate,
+                    OrderItems = orderItems.Select(item => new
+                    {
+                        item.Id,
+                        item.OrderId,
+                        item.ProductId,
+                        item.ProductName,
+                        item.VendorId,
+                        item.Quantity,
+                        item.Price,
+                        item.Status,
+                        item.CreatedDate,
+                        item.UpdatedDate
+                    }).ToList()
                 };
 
-                // Add to the list
-                orderDtos.Add(orderWithItemsDto);
+                ordersResponse.Add(orderResponse);
             }
 
-            return Ok(orderDtos);
+            return Ok(ordersResponse);
         }
-
 
         // Get order by Order ID
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderByOrderIdWithItems(string orderId)
         {
-            // Fetch the order by its ID
             var order = await _orderRepository.GetOrderByOrderIdAsync(orderId);
             if (order == null)
             {
                 return NotFound($"Order with ID {orderId} not found.");
             }
 
-            // Fetch the corresponding order items
             var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
 
-            // Combine order and order items into a DTO
-            var orderWithItemsDto = new OrderWithItemsDTO
+            var orderResponse = new
             {
-                Order = order,
-                OrderItems = orderItems
+                order.Id,
+                order.OrderId,
+                order.CustomerId,
+                order.TotalPrice,
+                order.Status,
+                order.Note,
+                order.CreatedDate,
+                order.UpdatedDate,
+                OrderItems = orderItems.Select(item => new
+                {
+                    item.Id,
+                    item.OrderId,
+                    item.ProductId,
+                    item.ProductName,
+                    item.VendorId,
+                    item.Quantity,
+                    item.Price,
+                    item.Status,
+                    item.CreatedDate,
+                    item.UpdatedDate
+                }).ToList()
             };
 
-            return Ok(orderWithItemsDto);
+            return Ok(orderResponse);
         }
 
 
@@ -177,23 +204,46 @@ namespace api.Controllers
                 return NotFound($"No orders found for Customer ID {customerId}.");
             }
 
-            // Create a list to hold the orders with their items
-            var ordersWithItems = new List<OrderWithItemsDTO>();
+            // Prepare the list to hold the final response
+            var ordersResponse = new List<object>();
 
             // Fetch the corresponding order items for each order
             foreach (var order in orders)
             {
                 var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(order.OrderId);
-                var orderWithItemsDto = new OrderWithItemsDTO
+
+                // Construct the response for each order
+                var orderResponse = new
                 {
-                    Order = order,
-                    OrderItems = orderItems
+                    order.Id,
+                    order.OrderId,
+                    order.CustomerId,
+                    order.TotalPrice,
+                    order.Status,
+                    order.Note,
+                    order.CreatedDate,
+                    order.UpdatedDate,
+                    OrderItems = orderItems.Select(item => new
+                    {
+                        item.Id,
+                        item.OrderId,
+                        item.ProductId,
+                        item.ProductName,
+                        item.VendorId,
+                        item.Quantity,
+                        item.Price,
+                        item.Status,
+                        item.CreatedDate,
+                        item.UpdatedDate
+                    }).ToList()
                 };
-                ordersWithItems.Add(orderWithItemsDto);
+
+                ordersResponse.Add(orderResponse);
             }
 
-            return Ok(ordersWithItems);
+            return Ok(ordersResponse);
         }
+
 
 
         // Update an existing order
