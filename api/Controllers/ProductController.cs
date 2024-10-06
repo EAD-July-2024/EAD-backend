@@ -42,9 +42,16 @@ namespace api.Controllers
             // List to hold the result
             var productsWithDetails = new List<ProductWithDetailsDTO>();
 
+
             // For each product, fetch the associated Category and Vendor details
             foreach (var product in products)
             {
+
+                if (product.IsDeleted == true)
+                {
+                    continue;
+                }
+
                 // Fetch category details
                 var category = await _categoryRepository.GetByCustomIdAsync(product.CategoryId);
                 if (category == null)
@@ -185,7 +192,7 @@ namespace api.Controllers
         }*/
 
 
-        
+
 
 
         // Update the stock level of a product
@@ -215,21 +222,21 @@ namespace api.Controllers
         }
 
         // Endpoint to update IsDeleted status
-        [HttpPut("productDelete")]
+        [HttpDelete("productDelete")]
         public async Task<IActionResult> UpdateIsDeleted([FromBody] UpdateIsDeletedRequest request)
         {
-            
-            
+
+
             bool isProductInOrder = await _productRepository.IsProductInAnyOrderAsync(request.ProductId);
-        
+
             if (isProductInOrder)
             {
                 return BadRequest(new { message = "Cannot delete this product as it is part of an existing order." });
             }
-        
-           
+
+
             var success = await _productRepository.UpdateIsDeletedAsync(request.ProductId, request.VendorId, request.IsDeleted);
-        
+
             if (success)
             {
                 return Ok(new { message = "Product deletion status updated successfully" });
@@ -273,9 +280,9 @@ namespace api.Controllers
     }
 
     public class UpdateIsDeletedRequest
-{
-    public string ProductId { get; set; } = null!;
-    public string VendorId { get; set; } = null!;
-    public bool IsDeleted { get; set; }
-}
+    {
+        public string ProductId { get; set; } = null!;
+        public string VendorId { get; set; } = null!;
+        public bool IsDeleted { get; set; }
+    }
 }
