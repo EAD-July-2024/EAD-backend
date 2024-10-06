@@ -11,6 +11,7 @@ namespace api.Models
         public string CustomerId { get; set; } = null!;
         public float TotalPrice { get; set; }
         public string Status { get; set; } = "Purchased"!;
+        public string Note { get; set; } = "";
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
     }
