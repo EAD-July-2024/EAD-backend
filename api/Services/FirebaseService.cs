@@ -17,7 +17,7 @@ public class FirebaseService
         {
             _firebaseApp = FirebaseApp.Create(new AppOptions()
             {
-                Credential = GoogleCredential.FromFile("")
+                //Credential = GoogleCredential.FromFile("")
             });
         }
     }
