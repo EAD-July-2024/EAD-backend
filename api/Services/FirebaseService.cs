@@ -46,7 +46,7 @@ public class FirebaseService
         foreach (var token in fcmTokens)
         {
             await SendNotificationAsync(token, title, body);  // Assuming you have a method to send individual notifications
-            Console.WriteLine("This hit " );
+            Console.WriteLine("This hit ");
         }
     }
 }
