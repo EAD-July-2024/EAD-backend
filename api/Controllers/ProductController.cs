@@ -251,10 +251,13 @@ namespace api.Controllers
         
             // Prepare the image streams for upload
             var newImageStreams = new List<Stream>();
-            foreach (var image in newImages)
+            if (newImages != null)
             {
-                var stream = image.OpenReadStream();
-                newImageStreams.Add(stream);
+                foreach (var image in newImages)
+                {
+                    var stream = image.OpenReadStream();
+                    newImageStreams.Add(stream);
+                }
             }
         
             // Perform the update
@@ -269,6 +272,7 @@ namespace api.Controllers
                 return NotFound(new { message = "Product not found" });
             }
         }
+
 
 
     }

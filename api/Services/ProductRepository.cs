@@ -138,14 +138,30 @@ namespace api.Services
                 return false; // Product not found
             }
         
-            // Update fields
-            var updateDef = Builders<Product>.Update
-                .Set(p => p.Name, updatedProduct.Name)
-                .Set(p => p.Description, updatedProduct.Description)
-                .Set(p => p.Price, updatedProduct.Price)
-                .Set(p => p.CategoryId, updatedProduct.CategoryId);
+            var updateDef = Builders<Product>.Update.Combine();
         
-            // Handle image update logic
+            // Update fields only if provided in the updatedProduct object
+            if (!string.IsNullOrEmpty(updatedProduct.Name))
+            {
+                updateDef = updateDef.Set(p => p.Name, updatedProduct.Name);
+            }
+        
+            if (!string.IsNullOrEmpty(updatedProduct.Description))
+            {
+                updateDef = updateDef.Set(p => p.Description, updatedProduct.Description);
+            }
+        
+            if (updatedProduct.Price != 0)
+            {
+                updateDef = updateDef.Set(p => p.Price, updatedProduct.Price);
+            }
+        
+            if (!string.IsNullOrEmpty(updatedProduct.CategoryId))
+            {
+                updateDef = updateDef.Set(p => p.CategoryId, updatedProduct.CategoryId);
+            }
+        
+            // Handle image update logic if new images are provided
             if (newImageStreams != null && newImageStreams.Count > 0)
             {
                 if (product.ImageUrls.Count + newImageStreams.Count > 5)
@@ -167,12 +183,15 @@ namespace api.Services
                     var imageUrl = await UploadImageAsync(fileName, stream);
                     product.ImageUrls.Add(imageUrl);
                 }
+        
+                // Add updated image URLs to the update definition
+                updateDef = updateDef.Set(p => p.ImageUrls, product.ImageUrls);
             }
         
-            updateDef = updateDef.Set(p => p.ImageUrls, product.ImageUrls);
             var result = await _products.UpdateOneAsync(filter, updateDef);
             return result.ModifiedCount > 0;
         }
+        
 
 
 
