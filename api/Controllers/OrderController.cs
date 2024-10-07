@@ -13,12 +13,17 @@ namespace api.Controllers
         private readonly ProductRepository _productRepository;
         private readonly OrderRepository _orderRepository;
         private readonly OrderItemRepository _orderItemRepository;
+        private readonly FCMTokenRepository _fCMTokenRepository;
 
-        public OrderController(ProductRepository productRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository)
+        private readonly FirebaseService _firebaseService;
+
+        public OrderController(ProductRepository productRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository, FCMTokenRepository fCMTokenRepository, FirebaseService firebaseService)
         {
             _productRepository = productRepository;
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
+            _fCMTokenRepository = fCMTokenRepository;
+            _firebaseService = firebaseService;
         }
 
         // Method to generate a unique Order ID
@@ -42,6 +47,9 @@ namespace api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] OrderCreationRequest request)
         {
+            // Set a stock threshold value
+            const int stockThreshold = 10; // Example threshold
+
             // Create custom OrderId
             string customOrderId = await GenerateUniqueOrderIdAsync();
 
@@ -69,6 +77,26 @@ namespace api.Controllers
                 product.Quantity -= item.Quantity;
                 await _productRepository.UpdateQuantityAsync(product.ProductId, product.Quantity);
 
+                // Check if the stock falls below the threshold and notify the vendor
+                if (product.Quantity < stockThreshold)
+                {
+                    Console.WriteLine($"Stock for product {product.Name} has dropped below {stockThreshold}. Current stock: {product.Quantity}");
+                    // Get the vendor's FCM token
+                    var vendorFcmTokens = await _fCMTokenRepository.GetVendorFcmTokenAsync(product.VendorId);
+
+                    if (vendorFcmTokens != null && vendorFcmTokens.Any())
+                    {
+                        Console.WriteLine("This if works");
+                        // Send notification to the vendor
+                        string notificationTitle = "Stock Alert";
+                        string notificationBody = $"Stock for product {product.Name} has dropped below {stockThreshold}. Current stock: {product.Quantity}";
+
+                        foreach (var token in vendorFcmTokens)
+                        {
+                            await _firebaseService.SendNotificationAsync(token, notificationTitle, notificationBody);
+                        }
+                    }
+                }
 
                 // Add product price to the order item for record keeping
                 processedItems.Add(new OrderItem
@@ -85,30 +113,31 @@ namespace api.Controllers
                 });
             }
 
-            // Create the new order
-            var order = new Order
-            {
-                OrderId = customOrderId,
-                CustomerId = request.CustomerId,
-                TotalPrice = totalPrice,
-                Status = "Purchased",
-                Note = "",
-                CreatedDate = DateTime.Now,
-                UpdatedDate = DateTime.Now
-            };
+    // Create the new order
+    var order = new Order
+    {
+        OrderId = customOrderId,
+        CustomerId = request.CustomerId,
+        TotalPrice = totalPrice,
+        Status = "Purchased",
+        Note = "",
+        CreatedDate = DateTime.Now,
+        UpdatedDate = DateTime.Now
+    };
 
-            // Save order to the database
-            await _orderRepository.CreateOrderAsync(order);
+    // Save order to the database
+    await _orderRepository.CreateOrderAsync(order);
 
-            // Assign the generated order ID to the order items and save them
-            foreach (var processedItem in processedItems)
-            {
-                processedItem.OrderId = order.OrderId;
-                await _orderItemRepository.CreateOrderItemAsync(processedItem);  // Save each item with the new Order ID
-            }
+    // Assign the generated order ID to the order items and save them
+    foreach (var processedItem in processedItems)
+    {
+        processedItem.OrderId = order.OrderId;
+        await _orderItemRepository.CreateOrderItemAsync(processedItem);  // Save each item with the new Order ID
+    }
 
-            return Ok(order);
-        }
+    return Ok(order);
+}
+
 
         // Get all orders
         [HttpGet]
