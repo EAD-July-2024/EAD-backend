@@ -61,25 +61,33 @@ namespace api.Controllers
                 PasswordHash = hashedPassword,
                 Role = model.Role
             };
-            if(model.Role == "CSR") user.IsApproved = true;
-            if(model.Role == "Vendor") user.IsApproved = true;
-            if(model.Role == "Customer") user.IsApproved = false;
+            if (model.Role == "CSR") user.IsApproved = true;
+            if (model.Role == "Vendor") user.IsApproved = true;
+            if (model.Role == "Customer") user.IsApproved = false;
 
             await _userRepository.CreateAsync(user);
-            if(user.Role == "CSR" ) return Ok("User created. User can now login.");
-            if(user.Role == "Vendor" ) return Ok("User created. User can now login.");
+            if (user.Role == "CSR") return Ok("User created. User can now login.");
+            if (user.Role == "Vendor") return Ok("User created. User can now login.");
 
             // After registering the customer, send notification to all CSRs
             var csrFcmTokens = await _fCMTokenRepository.GetCsrFcmTokensAsync();
             if (csrFcmTokens.Any())
-        {
-            Console.WriteLine("This if works");
-            var notificationTitle = "New Customer Registration";
-            var notificationBody = $"A new customer, {model.FullName}, has registered in the system.";
+            {
+                Console.WriteLine("This if works");
+                var notificationTitle = "New Customer Registration";
+                var notificationBody = $"A new customer, {model.FullName}, has registered in the system.";
 
-            await _firebaseService.SendNotificationToCsrAsync(csrFcmTokens, notificationTitle, notificationBody);
-        }
+                await _firebaseService.SendNotificationToCsrAsync(csrFcmTokens, notificationTitle, notificationBody);
+            }
             return Ok("User created. Pending approval from CSR.");
+        }
+
+        // Get all customers
+        [HttpGet("customers")]
+        public async Task<IActionResult> GetCustomers()
+        {
+            var customers = await _userRepository.GetAllCustomersAsync();
+            return Ok(customers);
         }
 
         //Generate unique User Id
@@ -104,7 +112,7 @@ namespace api.Controllers
                     userId = "CSR" + random.Next(0, 999999).ToString("D5");
                 }
 
-                
+
                 exists = await _userRepository.getExistingUserIds(userId);
 
             } while (exists);
@@ -117,14 +125,14 @@ namespace api.Controllers
         [HttpPut("approveCustomer/{userId}")]
         public async Task<IActionResult> ApproveCustomer(string userId)
         {
-            
+
             var customer = await _userRepository.GetUserByIdAsync(userId);
             if (customer == null)
             {
                 return NotFound(new { message = "Customer not found" });
             }
 
-            
+
             var success = await _userRepository.ApproveCustomerAsync(userId);
 
             if (success)

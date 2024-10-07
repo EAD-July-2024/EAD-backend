@@ -28,8 +28,6 @@ namespace api.Services
             var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
 
 
-
-
             if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey))
             {
                 throw new InvalidOperationException("AWS credentials not found in environment variables.");
@@ -132,36 +130,36 @@ namespace api.Services
         public async Task<bool> UpdateProductAsync(string productId, Product updatedProduct, List<Stream> newImageStreams = null)
         {
             var filter = Builders<Product>.Filter.Eq(p => p.ProductId, productId);
-        
+
             var product = await _products.Find(filter).FirstOrDefaultAsync();
             if (product == null)
             {
                 return false; // Product not found
             }
-        
+
             var updateDef = Builders<Product>.Update.Combine();
-        
+
             // Update fields only if provided in the updatedProduct object
             if (!string.IsNullOrEmpty(updatedProduct.Name))
             {
                 updateDef = updateDef.Set(p => p.Name, updatedProduct.Name);
             }
-        
+
             if (!string.IsNullOrEmpty(updatedProduct.Description))
             {
                 updateDef = updateDef.Set(p => p.Description, updatedProduct.Description);
             }
-        
+
             if (updatedProduct.Price != 0)
             {
                 updateDef = updateDef.Set(p => p.Price, updatedProduct.Price);
             }
-        
+
             if (!string.IsNullOrEmpty(updatedProduct.CategoryId))
             {
                 updateDef = updateDef.Set(p => p.CategoryId, updatedProduct.CategoryId);
             }
-        
+
             // Handle image update logic if new images are provided
             if (newImageStreams != null && newImageStreams.Count > 0)
             {
@@ -169,14 +167,14 @@ namespace api.Services
                 {
                     throw new InvalidOperationException("You cannot have more than 5 images for a product.");
                 }
-        
+
                 // Remove excess images if necessary to keep the total count at 5
                 int removeCount = (product.ImageUrls.Count + newImageStreams.Count) - 5;
                 for (int i = 0; i < removeCount; i++)
                 {
                     product.ImageUrls.RemoveAt(0);  // Remove from the front or oldest image
                 }
-        
+
                 // Upload new images and add to ImageUrls
                 foreach (var stream in newImageStreams)
                 {
@@ -184,15 +182,15 @@ namespace api.Services
                     var imageUrl = await UploadImageAsync(fileName, stream);
                     product.ImageUrls.Add(imageUrl);
                 }
-        
+
                 // Add updated image URLs to the update definition
                 updateDef = updateDef.Set(p => p.ImageUrls, product.ImageUrls);
             }
-        
+
             var result = await _products.UpdateOneAsync(filter, updateDef);
             return result.ModifiedCount > 0;
         }
-        
+
 
 
 
