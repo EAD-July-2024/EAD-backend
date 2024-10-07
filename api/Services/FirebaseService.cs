@@ -8,7 +8,7 @@ public class FirebaseService
 
     public FirebaseService()
     {
-        InitializeFirebase();
+        //InitializeFirebase();
     }
 
     private void InitializeFirebase()
@@ -17,7 +17,7 @@ public class FirebaseService
         {
             _firebaseApp = FirebaseApp.Create(new AppOptions()
             {
-                //Credential = GoogleCredential.FromFile("")
+                Credential = GoogleCredential.FromFile("api/appsettings.json")
             });
         }
     }
