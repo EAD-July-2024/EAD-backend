@@ -52,10 +52,30 @@ namespace api.Services
         public async Task<List<string>> GetCsrFcmTokensAsync()
         {
             Console.WriteLine("Getting CSR FCM tokens");
-            var filter = Builders<FCMToken>.Filter.Regex(t => t.UserId, new BsonRegularExpression("^CSR"));
+
+            // Filter tokens where the Role is "CSR"
+            var filter = Builders<FCMToken>.Filter.Eq(t => t.Role, "CSR");
+
             var tokens = await _fcmTokens.Find(filter).ToListAsync();
-             Console.WriteLine("Got CSR FCM tokens: " + tokens);
-            return tokens.Select(t => t.FcmTokenValue).ToList();  
+
+            Console.WriteLine("Got CSR FCM tokens: " + tokens);
+
+            // Return list of FCM token values
+            return tokens.Select(t => t.FcmTokenValue).ToList();
         }
+
+
+        // Repository method to get vendor FCM tokens by VendorId
+        public async Task<List<string>> GetVendorFcmTokenAsync(string vendorId)
+        {
+            Console.WriteLine("Here the vendor id is: " + vendorId);
+            var filter = Builders<FCMToken>.Filter.Eq(t => t.UserId, vendorId);
+            var tokens = await _fcmTokens.Find(filter).ToListAsync();
+
+            Console.WriteLine("Got Vendor FCM tokens: " + tokens);
+            return tokens.Select(t => t.FcmTokenValue).ToList();
+        }
+
+
     }
 }
