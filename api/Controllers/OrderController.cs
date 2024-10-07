@@ -222,6 +222,58 @@ namespace api.Controllers
         }
 
 
+        // Get specific order details for a vendor
+        [HttpGet("vendorSpecificOrder/{orderId}/{vendorId}")]
+        public async Task<IActionResult> GetOrderDetailsForVendor([FromRoute] string vendorId, [FromRoute] string orderId)
+        {
+            // Fetch the order by orderId
+            var order = await _orderRepository.GetOrderByOrderIdAsync(orderId);
+            if (order == null)
+            {
+                return NotFound(new { message = $"Order with ID {orderId} not found." });
+            }
+
+            // Fetch the order items for the given order
+            var orderItems = await _orderItemRepository.GetOrderItemsByOrderIdAsync(orderId);
+
+            // Filter order items by vendorId (return only the items that belong to this vendor)
+            var vendorOrderItems = orderItems.Where(item => item.VendorId == vendorId).ToList();
+            if (!vendorOrderItems.Any())
+            {
+                return NotFound(new { message = $"No order items found for vendor {vendorId} in order {orderId}." });
+            }
+
+            // Build the response containing only the vendor's order items
+            var orderResponse = new
+            {
+                order.Id,
+                order.OrderId,
+                order.CustomerId,
+                order.TotalPrice,
+                order.Status,
+                order.Note,
+                order.CreatedDate,
+                order.UpdatedDate,
+                OrderItems = vendorOrderItems.Select(item => new
+                {
+                    item.Id,
+                    item.OrderId,
+                    item.ProductId,
+                    item.ProductName,
+                    item.VendorId,
+                    item.Quantity,
+                    item.Price,
+                    item.Status,
+                    item.CreatedDate,
+                    item.UpdatedDate
+                }).ToList()
+            };
+
+            return Ok(orderResponse);
+        }
+
+
+
         // Get order using Customer ID
         [HttpGet("getByCustomerId/{customerId}")]
         public async Task<IActionResult> GetOrdersByCustomerIdWithItems(string customerId)

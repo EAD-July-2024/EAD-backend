@@ -53,5 +53,32 @@ namespace api.Services
     
             return vendors;
         }
+
+        
+        // Update vendor details by VendorId
+        public async Task<bool> UpdateVendorByVendorIdAsync(string vendorId, ApplicationUser updatedVendor)
+        {
+            // Filter to find the vendor by Role "Vendor" and their VendorId
+            var filter = Builders<ApplicationUser>.Filter.Where(v => v.Role == "Vendor" && v.UserId == vendorId);
+
+            // Retrieve the vendor document
+            var vendor = await _users.Find(filter).FirstOrDefaultAsync();
+            if (vendor == null)
+            {
+                return false; // Vendor not found
+            }
+
+            // Prepare the update definition with fields that have been provided
+            var updateDef = Builders<ApplicationUser>.Update
+                .Set(v => v.FullName, updatedVendor.FullName ?? vendor.FullName)
+                .Set(v => v.Email, updatedVendor.Email ?? vendor.Email)
+                .Set(v => v.ContactInfo, updatedVendor.ContactInfo ?? vendor.ContactInfo)
+                .Set(v => v.IsApproved, updatedVendor.IsApproved);
+
+            // Update only if the new data is provided (other fields stay the same)
+            var result = await _users.UpdateOneAsync(filter, updateDef);
+            return result.ModifiedCount > 0;
+        }
+
     }
 }

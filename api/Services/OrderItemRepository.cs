@@ -88,5 +88,13 @@ namespace api.Services
 
             return await _orderItems.Find(filter).FirstOrDefaultAsync();
         }
+
+        
+        public async Task<List<OrderItem>> GetOrderrItemsByOrderIdAsync(string orderId)
+        {
+            var filter = Builders<OrderItem>.Filter.Eq(oi => oi.OrderId, orderId);
+            return await _orderItems.Find(filter).ToListAsync();
+        }
+
     }
 }

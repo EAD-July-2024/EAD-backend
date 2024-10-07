@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
+using api.Models;
 
 namespace api.Controllers
 {
@@ -76,5 +77,23 @@ namespace api.Controllers
 
             return Ok(result);
         }
+
+
+        [HttpPut("updateVendor/{vendorId}")]
+        public async Task<IActionResult> UpdateVendorByVendorId([FromRoute] string vendorId, [FromBody] ApplicationUser updatedVendor)
+        {
+            // Call the repository to update the vendor
+            var success = await _vendorRepository.UpdateVendorByVendorIdAsync(vendorId, updatedVendor);
+        
+            if (success)
+            {
+                return Ok(new { message = "Vendor updated successfully." });
+            }
+            else
+            {
+                return NotFound(new { message = "Vendor not found." });
+            }
+        }
+
     }
 }

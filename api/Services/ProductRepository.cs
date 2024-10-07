@@ -24,8 +24,8 @@ namespace api.Services
 
 
             // // // Retrieve AWS credentials from environment variables
-            var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
-            var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+            var awsAccessKeyId = "AKIAR22HOY3YLDAUVIWE";
+var awsSecretAccessKey = "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";
 
 
             if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey))

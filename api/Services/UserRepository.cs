@@ -67,6 +67,32 @@ namespace api.Services
             await _users.ReplaceOneAsync(u => u.Id == user.Id, user);
         }
 
+        
+        public async Task<bool> UpdateCustomerByCustomerIdAsync(string customerId, ApplicationUser updatedCustomer)
+        {
+            // Filter to find the customer by Role "Customer" and their CustomerId
+            var filter = Builders<ApplicationUser>.Filter.Where(c => c.Role == "Customer" && c.UserId == customerId);
+
+            // Retrieve the customer document
+            var customer = await _users.Find(filter).FirstOrDefaultAsync();
+            if (customer == null)
+            {
+                return false; // Customer not found
+            }
+
+            // Prepare the update definition with fields that have been provided
+            var updateDef = Builders<ApplicationUser>.Update
+                .Set(c => c.FullName, updatedCustomer.FullName ?? customer.FullName)
+                .Set(c => c.Email, updatedCustomer.Email ?? customer.Email)
+                .Set(c => c.ContactInfo, updatedCustomer.ContactInfo ?? customer.ContactInfo)
+                .Set(c => c.IsApproved, updatedCustomer.IsApproved);
+
+            // Update only if the new data is provided (other fields stay the same)
+            var result = await _users.UpdateOneAsync(filter, updateDef);
+            return result.ModifiedCount > 0;
+        }
+
+
     }
 
 }

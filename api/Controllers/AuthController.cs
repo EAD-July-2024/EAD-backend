@@ -144,5 +144,23 @@ namespace api.Controllers
                 return BadRequest(new { message = "Failed to approve customer" });
             }
         }
+
+
+        [HttpPut("updateCustomer/{customerId}")]
+        public async Task<IActionResult> UpdateCustomerByCustomerId([FromRoute] string customerId, [FromBody] ApplicationUser updatedCustomer)
+        {
+            // Call the repository to update the customer
+            var success = await _userRepository.UpdateCustomerByCustomerIdAsync(customerId, updatedCustomer);
+        
+            if (success)
+            {
+                return Ok(new { message = "Customer updated successfully." });
+            }
+            else
+            {
+                return NotFound(new { message = "Customer not found." });
+            }
+        }
+
     }
 }
