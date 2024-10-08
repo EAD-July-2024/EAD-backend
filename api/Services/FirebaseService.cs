@@ -1,3 +1,37 @@
+/*
+ * File: FirebaseService.cs
+ * Author: [​Thilakarathne S.P. ]
+
+ * Description: 
+ *     This file contains the FirebaseService class, which is responsible for 
+ *     initializing the Firebase Admin SDK and sending push notifications to devices 
+ *     using Firebase Cloud Messaging (FCM). The service includes methods for sending 
+ *     notifications to individual devices and to multiple devices based on their FCM tokens.
+ * 
+ * Dependencies:
+ *     - FirebaseAdmin: The Firebase Admin SDK for .NET.
+ *     - Google.Apis.Auth.OAuth2: For handling Google credentials and authentication.
+ * 
+ * Methods:
+ *     - FirebaseService: Constructor that initializes the Firebase service by calling 
+ *       the InitializeFirebase method.
+ *     - InitializeFirebase: 
+ *         Checks if the FirebaseApp instance is null; if so, it initializes it using 
+ *         the provided service account credentials from a JSON file.
+ * 
+ *     - SendNotificationAsync: 
+ *         Sends a notification to a device specified by the FCM token. The method 
+ *         constructs a Message object with the provided title and body, then sends 
+ *         the message asynchronously. It logs the response from the Firebase server.
+ * 
+ *     - SendNotificationToCsrAsync: 
+ *         Sends notifications to multiple devices by iterating through a list of FCM 
+ *         tokens and calling the SendNotificationAsync method for each token. It logs 
+ *         a message for each token processed.
+ * 
+
+ */
+
 using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;

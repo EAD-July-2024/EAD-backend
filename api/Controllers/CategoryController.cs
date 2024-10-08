@@ -1,3 +1,26 @@
+/*
+ * File: CategoryController.cs
+ * Author: [Piyumantha W.U.]
+
+ * Description: 
+ *     This file contains the CategoryController class, which handles category-related operations 
+ *     in the E-commerce system. It includes methods for managing categories such as retrieving 
+ *     all categories, fetching a category by its custom ID, creating new categories, updating 
+ *     existing categories, and deactivating categories.
+ * 
+ * Methods:
+ *     - GenerateUniqueCustomIdAsync: Generates a unique custom ID for each category.
+ *     - Get: Fetches a list of all available categories.
+ *     - GetByCustomId: Retrieves a category by its custom ID.
+ *     - Create: Adds a new category to the system, generating a unique custom ID for it.
+ *     - Update: Updates the fields of an existing category, such as Name, Description, and Status.
+ *     - DeactivateCategory: Marks a category as deleted by setting the `isDeleted` flag.
+ * 
+ * Dependencies:
+ *     - CategoryRepository: Used to access and manage category data from the database.
+ * 
+ */
+
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;

@@ -1,3 +1,29 @@
+/*
+ * File: AuthController.cs
+ * Author: [​Thilakarathne S.P. ]
+ * 
+ * Description: 
+ *     This file contains the AuthController class, which handles user authentication and 
+ *     authorization operations for the E-commerce system, including login, registration, 
+ *     and customer approval by the CSR. It utilizes JWT for token generation, Firebase for 
+ *     notifications, and bcrypt for password hashing.
+ * 
+ * Methods:
+ *     - Login: Handles user login, generates a JWT token, and checks credentials.
+ *     - Register: Registers a new user, with automatic approval for CSR and Vendor roles, 
+ *                 and pending approval for customers.
+ *     - GetCustomers: Fetches a list of all registered customers.
+ *     - GenerateUniqueUserIdAsync: Generates a unique user ID based on the role (Customer, 
+ *                                  Vendor, CSR).
+ *     - ApproveCustomer: Approves a customer account, allowing them to log in.
+ * 
+ * Dependencies:
+ *     - UserRepository: Used for accessing user data from the database.
+ *     - JWTService: Used for generating JWT tokens for authentication.
+ *     - FCMTokenRepository: Used to get Firebase Cloud Messaging tokens for sending notifications.
+ *     - FirebaseService: Used to send notifications to the CSR about new customer registrations.
+ * 
+ */
 using System;
 using System.Collections.Generic;
 using System.Linq;

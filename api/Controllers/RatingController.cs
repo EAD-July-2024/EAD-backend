@@ -1,3 +1,24 @@
+/*
+ * File: RatingController.cs
+ * Author: [Gunasekara S.N.W. ]
+ 
+ * Description: 
+ *     This file contains the RatingController class, which manages vendor ratings 
+ *     in the E-commerce system. It includes methods for submitting new ratings, 
+ *     updating existing comments, and notifying vendors about new ratings or comment updates.
+ * 
+ * Methods:
+ *     - RateVendor: Allows a customer to submit a new rating or update an existing rating's comment 
+ *                   for a vendor. If a rating already exists, only the comment can be modified.
+ *     - UpdateComment: Updates the comment for an existing rating given by a customer for a vendor.
+ * 
+ * Dependencies:
+ *     - RatingRepository: Used to access and manage rating data in the database.
+ *     - UserRepository: Used to access user data, specifically for retrieving vendor information.
+ *     - FirebaseService: Used to send notifications to vendors when new ratings or comments are added.
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,3 +1,41 @@
+/*
+ * File: ProductController.cs
+ * Author: [​Gunasekara S.N.W. ]
+ 
+ * Description:
+ *     This file contains the ProductController class, which manages the product-related 
+ *     functionalities within the E-commerce system. It provides various endpoints for 
+ *     retrieving, creating, updating, and deleting products, as well as managing product 
+ *     stock levels and fetching associated details for categories and vendors.
+ *
+ * Methods:
+ *     - GetProductsWithDetails: Retrieves all products along with their associated 
+ *       category and vendor details, filtering out deleted products.
+ *     - GetByCustomId: Retrieves a specific product by its custom ID, along with 
+ *       category and vendor details.
+ *     - GetProductsByUserRole: Fetches products based on the user role (Admin or 
+ *       Vendor), returning appropriate products for each role.
+ *     - Create: Creates a new product with associated images and generates a unique 
+ *       custom ID.
+ *     - GenerateUniqueCustomIdAsync: Generates a unique product ID for a new product.
+ *     - UpdateProductStock: Updates the stock level of a specified product.
+ *     - GetProductStock: Retrieves the current stock level for a specified product.
+ *     - UpdateIsDeleted: Updates the deletion status of a product, ensuring it is not 
+ *       part of any existing orders before deletion.
+ *     - UpdateProduct: Updates the details of a specified product, including handling 
+ *       new images.
+ *
+ * Dependencies:
+ *     - ProductRepository: Handles database operations related to products.
+ *     - OrderItemRepository: Manages order item data interactions.
+ *     - CategoryRepository: Handles category-related database operations.
+ *     - UserRepository: Manages user-related database interactions.
+ *
+ * Data Models:
+ *     - UpdateIsDeletedRequest: Represents the request model for updating the deletion 
+ *       status of a product, including the ProductId, VendorId, and IsDeleted status.
+ */
+
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authorization;
