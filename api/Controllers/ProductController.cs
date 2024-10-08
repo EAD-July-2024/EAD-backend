@@ -136,6 +136,84 @@ namespace api.Controllers
             return Ok(productWithDetails);
         }
 
+        // Get products by role (Admin or Vendor)
+        [HttpGet("getByRole/{userId}")]
+        public async Task<IActionResult> GetProductsByUserRole(string userId)
+        {
+            List<Product> products;
+
+            // Check the first three letters of the userId to determine the role
+            if (userId.StartsWith("ADM"))
+            {
+                // If the user is an Admin, fetch all products
+                products = await _productRepository.GetAsync();
+            }
+            else if (userId.StartsWith("VEN"))
+            {
+                // If the user is a Vendor, fetch products associated with this VendorId
+                products = await _productRepository.GetByVendorIdAsync(userId);
+            }
+            else
+            {
+                return BadRequest("Invalid user role. Only 'ADM' or 'VEN' roles are allowed.");
+            }
+
+            // If no products were found
+            if (products == null || !products.Any())
+            {
+                return NotFound($"No products found for User ID {userId}.");
+            }
+
+            // List to hold the result
+            var productsWithDetails = new List<ProductWithDetailsDTO>();
+
+            // For each product, fetch the associated Category and Vendor details
+            foreach (var product in products)
+            {
+                // Skip deleted products
+                if (product.IsDeleted == true)
+                {
+                    continue;
+                }
+
+                // Fetch category details
+                var category = await _categoryRepository.GetByCustomIdAsync(product.CategoryId);
+                if (category == null)
+                {
+                    return NotFound($"Category with ID {product.CategoryId} not found.");
+                }
+
+                // Fetch vendor details
+                var vendor = await _userRepository.GetUserByIdAsync(product.VendorId);
+                if (vendor == null)
+                {
+                    return NotFound($"Vendor with ID {product.VendorId} not found.");
+                }
+
+                // Create a new ProductWithDetailsDTO
+                var productWithDetails = new ProductWithDetailsDTO
+                {
+                    Id = product.Id.ToString(),
+                    ProductId = product.ProductId,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Price = product.Price,
+                    Quantity = product.Quantity,
+                    CategoryId = product.CategoryId,
+                    CategoryName = category.Name,
+                    VendorId = product.VendorId,
+                    VendorName = vendor.FullName,
+                    ImageUrls = product.ImageUrls,
+                    IsDeleted = product.IsDeleted
+                };
+
+                productsWithDetails.Add(productWithDetails);
+            }
+
+            // Return the list of products with their details
+            return Ok(productsWithDetails);
+        }
+
         [HttpPost]
         //[Authorize(Policy = "RequireAdminRole")]
         public async Task<IActionResult> Create([FromForm] Product product, List<IFormFile> images)
@@ -176,24 +254,6 @@ namespace api.Controllers
 
             return customId;
         }
-
-
-        //
-        //Get product details by product custom id
-        /*[HttpGet("{productId}")]
-        public async Task<IActionResult> GetByCustomId(string productId)
-        {
-            var product = await _productRepository.GetByCustomIdAsync(productId);
-            if (product == null)
-            {
-                return NotFound("Product not found");
-            }
-            return Ok(product);
-        }*/
-
-
-
-
 
         // Update the stock level of a product
         [HttpPatch("quantity/{productId}")]
@@ -255,7 +315,7 @@ namespace api.Controllers
             {
                 return BadRequest("You cannot upload more than 5 images.");
             }
-        
+
             // Prepare the image streams for upload
             var newImageStreams = new List<Stream>();
             if (newImages != null)
@@ -266,10 +326,10 @@ namespace api.Controllers
                     newImageStreams.Add(stream);
                 }
             }
-        
+
             // Perform the update
             var success = await _productRepository.UpdateProductAsync(productId, updatedProduct, newImageStreams);
-        
+
             if (success)
             {
                 return Ok(new { message = "Product updated successfully" });
@@ -279,8 +339,6 @@ namespace api.Controllers
                 return NotFound(new { message = "Product not found" });
             }
         }
-
-
 
     }
 
