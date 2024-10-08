@@ -13,7 +13,8 @@ namespace api.Services
     {
         private readonly IMongoCollection<Rating> _ratings;
 
-        public RatingRepository(IOptions<MongoDBSettings> mongoDBSettings){
+        public RatingRepository(IOptions<MongoDBSettings> mongoDBSettings)
+        {
 
             var client = new MongoClient(mongoDBSettings.Value.ConnectionString);
             var database = client.GetDatabase(mongoDBSettings.Value.DatabaseName);
@@ -30,8 +31,9 @@ namespace api.Services
             var ratings = await GetRatingsForVendorAsync(vendorId);
             if (!ratings.Any()) return 0.0;
 
-            return ratings.Average(r => r.Stars);
+            return Math.Round(ratings.Average(r => r.Stars), 2);
         }
+
 
         public async Task<List<Rating>> GetRatingsForVendorAsync(string vendorId)
         {
