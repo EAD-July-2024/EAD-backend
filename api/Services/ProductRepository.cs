@@ -14,6 +14,7 @@ namespace api.Services
         private readonly IMongoCollection<OrderItem> _orderItems;
         private readonly IAmazonS3 _s3Client;
         private const string BucketName = "eadbucket";
+
         public ProductRepository(IOptions<MongoDBSettings> mongoDBSettings)
         {
             MongoClient client = new MongoClient(mongoDBSettings.Value.ConnectionString);
@@ -24,6 +25,7 @@ namespace api.Services
             // // Retrieve AWS credentials from environment variables
             var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
             var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+
 
             if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey))
             {
@@ -49,6 +51,7 @@ namespace api.Services
             return $"https://{BucketName}.s3.amazonaws.com/ProductImages/{fileName}";  // URL with folder path
         }
 
+        // Create a new product
         public async Task CreateAsync(Product product, List<Stream> imageStreams)
         {
             for (int i = 0; i < imageStreams.Count; i++)
@@ -61,11 +64,13 @@ namespace api.Services
             await _products.InsertOneAsync(product);
         }
 
+        // Get existing product ids
         public async Task<bool> getExistingIds(String pId)
         {
             return await _products.Find(p => p.ProductId == pId).AnyAsync();
         }
 
+        // Get all products
         public async Task<List<Product>> GetAsync()
         {
             var products = await _products.Find(new BsonDocument()).ToListAsync();
@@ -97,6 +102,12 @@ namespace api.Services
         public async Task<Product> GetByCustomIdAsync(string customId)
         {
             return await _products.Find(p => p.ProductId == customId).FirstOrDefaultAsync();
+        }
+
+        // Get product details by vendor id
+        public async Task<List<Product>> GetByVendorIdAsync(string vendorId)
+        {
+            return await _products.Find(p => p.VendorId == vendorId).ToListAsync();
         }
 
         // Deactivate product (soft delete)
