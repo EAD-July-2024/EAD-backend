@@ -34,6 +34,13 @@ namespace api.Services
             return Math.Round(ratings.Average(r => r.Stars), 2);
         }
 
+        // public async Task<double> CalculateAverageRating(string vendorId)
+        // {
+        //     var ratings = await GetRatingsForVendorAsync(vendorId);
+        //     if (!ratings.Any()) return 0.0;
+
+        //     return ratings.Average(r => r.Stars);
+        // }
 
         public async Task<List<Rating>> GetRatingsForVendorAsync(string vendorId)
         {
