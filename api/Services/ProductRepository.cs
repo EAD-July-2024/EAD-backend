@@ -14,7 +14,6 @@ namespace api.Services
         private readonly IMongoCollection<OrderItem> _orderItems;
         private readonly IAmazonS3 _s3Client;
         private const string BucketName = "eadbucket";
-
         public ProductRepository(IOptions<MongoDBSettings> mongoDBSettings)
         {
             MongoClient client = new MongoClient(mongoDBSettings.Value.ConnectionString);
@@ -22,15 +21,9 @@ namespace api.Services
             _products = database.GetCollection<Product>(mongoDBSettings.Value.CollectionName);
             _orderItems = database.GetCollection<OrderItem>("OrderItems");
 
-
             // // Retrieve AWS credentials from environment variables
-            // var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
-            // var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
-
-            // Retrieve AWS credentials from environment variables
-            var awsAccessKeyId = "AKIAR22HOY3YLDAUVIWE";
-            var awsSecretAccessKey = "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";
-
+            var awsAccessKeyId = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+            var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
 
             if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey))
             {
