@@ -79,6 +79,7 @@ namespace api.Controllers
                     CategoryName = category.Name,
                     VendorId = product.VendorId,
                     VendorName = vendor.FullName,
+                    VendorRating = vendor.AverageRating,
                     ImageUrls = product.ImageUrls,
                     IsDeleted = product.IsDeleted
                 };
@@ -128,6 +129,7 @@ namespace api.Controllers
                 CategoryName = category.Name,
                 VendorId = product.VendorId,
                 VendorName = vendor.FullName,
+                VendorRating = vendor.AverageRating,
                 ImageUrls = product.ImageUrls,
                 IsDeleted = product.IsDeleted
             };
@@ -203,6 +205,7 @@ namespace api.Controllers
                     CategoryName = category.Name,
                     VendorId = product.VendorId,
                     VendorName = vendor.FullName,
+                    VendorRating = vendor.AverageRating,
                     ImageUrls = product.ImageUrls,
                     IsDeleted = product.IsDeleted
                 };
