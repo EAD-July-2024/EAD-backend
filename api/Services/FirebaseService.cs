@@ -8,19 +8,19 @@ public class FirebaseService
 
     public FirebaseService()
     {
-        //InitializeFirebase();
+        // InitializeFirebase();
     }
 
-    private void InitializeFirebase()
-    {
-        if (_firebaseApp == null)
-        {
-            _firebaseApp = FirebaseApp.Create(new AppOptions()
-            {
-                Credential = GoogleCredential.FromFile("api/appsettings.json")
-            });
-        }
-    }
+    // private void InitializeFirebase()
+    // {
+    //     if (_firebaseApp == null)
+    //     {
+    //         _firebaseApp = FirebaseApp.Create(new AppOptions()
+    //         {
+    //             Credential = GoogleCredential.FromFile("/Users/SLIIT/Year 04/EAD/Assignment/Work/Repos/Backend/EAD-backend/api/ead-e-commerce-ee253-firebase-adminsdk-6aity-28ec1334ed.json")
+    //         });
+    //     }
+    // }
 
     // Method to send notification
     public async Task SendNotificationAsync(string token, string title, string body)
