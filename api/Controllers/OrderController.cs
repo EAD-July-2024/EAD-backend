@@ -113,30 +113,30 @@ namespace api.Controllers
                 });
             }
 
-    // Create the new order
-    var order = new Order
-    {
-        OrderId = customOrderId,
-        CustomerId = request.CustomerId,
-        TotalPrice = totalPrice,
-        Status = "Purchased",
-        Note = "",
-        CreatedDate = DateTime.Now,
-        UpdatedDate = DateTime.Now
-    };
+            // Create the new order
+            var order = new Order
+            {
+                OrderId = customOrderId,
+                CustomerId = request.CustomerId,
+                TotalPrice = totalPrice,
+                Status = "Purchased",
+                Note = "",
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
 
-    // Save order to the database
-    await _orderRepository.CreateOrderAsync(order);
+            // Save order to the database
+            await _orderRepository.CreateOrderAsync(order);
 
-    // Assign the generated order ID to the order items and save them
-    foreach (var processedItem in processedItems)
-    {
-        processedItem.OrderId = order.OrderId;
-        await _orderItemRepository.CreateOrderItemAsync(processedItem);  // Save each item with the new Order ID
-    }
+            // Assign the generated order ID to the order items and save them
+            foreach (var processedItem in processedItems)
+            {
+                processedItem.OrderId = order.OrderId;
+                await _orderItemRepository.CreateOrderItemAsync(processedItem);  // Save each item with the new Order ID
+            }
 
-    return Ok(order);
-}
+            return Ok(order);
+        }
 
 
         // Get all orders
@@ -160,19 +160,26 @@ namespace api.Controllers
                     order.Note,
                     order.CreatedDate,
                     order.UpdatedDate,
-                    OrderItems = orderItems.Select(item => new
+                    OrderItems = await Task.WhenAll(orderItems.Select(async item =>
                     {
-                        item.Id,
-                        item.OrderId,
-                        item.ProductId,
-                        item.ProductName,
-                        item.VendorId,
-                        item.Quantity,
-                        item.Price,
-                        item.Status,
-                        item.CreatedDate,
-                        item.UpdatedDate
-                    }).ToList()
+                        // Fetch the product details for the image URL
+                        var product = await _productRepository.GetByCustomIdAsync(item.ProductId);
+
+                        return new
+                        {
+                            item.Id,
+                            item.OrderId,
+                            item.ProductId,
+                            item.ProductName,
+                            item.VendorId,
+                            item.Quantity,
+                            item.Price,
+                            item.Status,
+                            ImageUrl = product?.ImageUrls?.FirstOrDefault(), // Fetch the image URL
+                            item.CreatedDate,
+                            item.UpdatedDate
+                        };
+                    }))
                 };
 
                 ordersResponse.Add(orderResponse);
@@ -203,26 +210,33 @@ namespace api.Controllers
                 order.Note,
                 order.CreatedDate,
                 order.UpdatedDate,
-                OrderItems = orderItems.Select(item => new
+                OrderItems = await Task.WhenAll(orderItems.Select(async item =>
                 {
-                    item.Id,
-                    item.OrderId,
-                    item.ProductId,
-                    item.ProductName,
-                    item.VendorId,
-                    item.Quantity,
-                    item.Price,
-                    item.Status,
-                    item.CreatedDate,
-                    item.UpdatedDate
-                }).ToList()
+                    // Fetch the product details for the image URL
+                    var product = await _productRepository.GetByCustomIdAsync(item.ProductId);
+
+                    return new
+                    {
+                        item.Id,
+                        item.OrderId,
+                        item.ProductId,
+                        item.ProductName,
+                        item.VendorId,
+                        item.Quantity,
+                        item.Price,
+                        item.Status,
+                        ImageUrl = product?.ImageUrls?.FirstOrDefault(), // Fetch the image URL
+                        item.CreatedDate,
+                        item.UpdatedDate
+                    };
+                }))
             };
 
             return Ok(orderResponse);
         }
 
 
-        // Get order using Customer ID
+        // Get orders by Customer ID
         [HttpGet("getByCustomerId/{customerId}")]
         public async Task<IActionResult> GetOrdersByCustomerIdWithItems(string customerId)
         {
@@ -252,19 +266,26 @@ namespace api.Controllers
                     order.Note,
                     order.CreatedDate,
                     order.UpdatedDate,
-                    OrderItems = orderItems.Select(item => new
+                    OrderItems = await Task.WhenAll(orderItems.Select(async item =>
                     {
-                        item.Id,
-                        item.OrderId,
-                        item.ProductId,
-                        item.ProductName,
-                        item.VendorId,
-                        item.Quantity,
-                        item.Price,
-                        item.Status,
-                        item.CreatedDate,
-                        item.UpdatedDate
-                    }).ToList()
+                        // Fetch the product details for the image URL
+                        var product = await _productRepository.GetByCustomIdAsync(item.ProductId);
+
+                        return new
+                        {
+                            item.Id,
+                            item.OrderId,
+                            item.ProductId,
+                            item.ProductName,
+                            item.VendorId,
+                            item.Quantity,
+                            item.Price,
+                            item.Status,
+                            ImageUrl = product?.ImageUrls?.FirstOrDefault(),
+                            item.CreatedDate,
+                            item.UpdatedDate
+                        };
+                    }))
                 };
 
                 ordersResponse.Add(orderResponse);
@@ -272,7 +293,6 @@ namespace api.Controllers
 
             return Ok(ordersResponse);
         }
-
 
 
         // Update an existing order

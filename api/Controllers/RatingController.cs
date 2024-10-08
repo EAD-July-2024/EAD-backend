@@ -26,6 +26,7 @@ namespace api.Controllers
             _firebaseService = firebaseService;
         }
 
+        // Create a new rating
         [HttpPost]
         public async Task<IActionResult> RateVendor([FromBody] RatingDTO model)
         {
