@@ -1,3 +1,45 @@
+/*
+ * File: FCMTokenRepository.cs
+ * Author: [​Thilakarathne S.P. ]
+
+ * Description:
+ *     This file contains the FCMTokenRepository class, which is responsible for 
+ *     managing Firebase Cloud Messaging (FCM) tokens in a MongoDB database. 
+ *     It provides methods to store, retrieve, and update FCM tokens associated 
+ *     with users, specifically for roles such as Customer Service Representatives (CSRs) 
+ *     and vendors.
+ * 
+ * Dependencies:
+ *     - MongoDB.Driver: For interacting with MongoDB.
+ *     - Microsoft.Extensions.Options: For accessing configuration settings.
+ * 
+ * Methods:
+ *     - FCMTokenRepository: Constructor that initializes the MongoDB collection for 
+ *       FCM tokens using the provided MongoDB settings.
+ *     
+ *     - StoreTokenAsync:
+ *         Takes a user ID, FCM token, and role as parameters and stores the FCM token 
+ *         in the database as a new FCMToken document.
+ * 
+ *     - GetTokenByUserIdAsync:
+ *         Retrieves the FCM token associated with a given user ID. Returns the first 
+ *         matching FCMToken or null if none is found.
+ * 
+ *     - UpdateTokenAsync:
+ *         Updates the FCM token value and the timestamp of the token creation for 
+ *         a given user ID. Uses the user ID to filter the FCM tokens.
+ * 
+ *     - GetCsrFcmTokensAsync:
+ *         Retrieves a list of FCM tokens for all Customer Service Representatives (CSRs).
+ *         Filters tokens based on the role "CSR" and returns a list of FCM token values.
+ * 
+ *     - GetVendorFcmTokenAsync:
+ *         Retrieves a list of FCM tokens for a specific vendor based on their user ID. 
+ *         Returns a list of FCM token values associated with the vendor ID.
+ * 
+
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,3 +1,32 @@
+/*
+ * File: OrderItemRepository.cs
+ * Author: [​Siriwardana S.M.K.S. ]
+
+ * Description: 
+ *     This file contains the OrderItemRepository class, which manages operations related to
+ *     order items in the E-commerce system. It provides methods for creating, retrieving,
+ *     updating, and deleting order items stored in MongoDB.
+ * 
+ * Dependencies:
+ *     - MongoDB.Driver: Used for interacting with the MongoDB database for order item storage.
+ *     - OrderItem: Represents the order item model, including details such as Id, OrderId, 
+ *       ProductId, Quantity, Price, Status, and UpdatedDate.
+ * 
+ * Methods:
+ *     - CreateOrderItemAsync: Inserts a new order item into the database.
+ *     - GetAllOrderItemsAsync: Retrieves all order items from the database.
+ *     - GetOrderItemByIdAsync: Retrieves an order item by its ID.
+ *     - GetOrderItemsByOrderIdAsync: Retrieves all order items associated with a specific order ID.
+ *     - GetOrderItemsByVendorIdAsync: Retrieves all order items associated with a specific vendor ID.
+ *     - UpdateOrderItemAsync: Updates the details of an existing order item.
+ *     - UpdateOrderItemStatusAsync: Updates the status of an order item.
+ *     - DeleteOrderItemAsync: Deletes an order item by its ID.
+ *     - CheckIfProductInOrderItemsAsync: Checks if a given product ID is used in any order item record.
+ *     - GetOrderItemByProductIdAndOrderIdAsync: Retrieves an order item by its order ID and product ID.
+ * 
+
+ */
+
 using api.Models;
 using MongoDB.Driver;
 using Microsoft.Extensions.Options;

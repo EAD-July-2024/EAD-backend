@@ -1,3 +1,26 @@
+/*
+ * File: FCMTokenController.cs
+ * Author: [​Thilakarathne S.P. ]
+
+ * Description:
+ *     This file contains the FCMTokenController class, which manages the storage and 
+ *     updating of Firebase Cloud Messaging (FCM) tokens for users in the E-commerce 
+ *     system. It provides functionalities to store a new token or update an existing 
+ *     token based on the user ID. The controller interacts with the FCMTokenRepository 
+ *     to perform necessary database operations.
+ * 
+ * Methods:
+ *     - StoreToken: Stores a new FCM token for a user or updates an existing token if 
+ *                   one is already present.
+ * 
+ * Dependencies:
+ *     - FCMTokenRepository: Used for accessing FCM token data from the database.
+ * 
+ * Data Models:
+ *     - TokenRequest: Represents the request model for storing/updating FCM tokens, 
+ *                     including the UserId, FCM token, and user role.
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

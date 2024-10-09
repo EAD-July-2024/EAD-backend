@@ -1,3 +1,24 @@
+/*
+ * File: VendorController.cs
+ * Author: [Piyumantha W.U.]
+
+ * Description: 
+ *     This file contains the VendorController class, which manages vendor-related 
+ *     operations in the E-commerce system, including retrieving individual vendor 
+ *     details as well as fetching a list of all vendors. It includes vendor ratings 
+ *     and customer information in the responses.
+ * 
+ * Methods:
+ *     - GetVendor: Fetches the details of a specific vendor by vendorId, including their 
+ *                  contact information, average rating, and associated customer ratings.
+ *     - GetAllVendors: Retrieves a list of all vendors, each with their contact information, 
+ *                      average rating, and associated customer ratings.
+ * 
+ * Dependencies:
+ *     - VendorRepository: Used to access vendor data from the database, including vendor ratings.
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,3 +1,32 @@
+/*
+ * File: OrderRepository.cs
+ * Author: [​Siriwardana S.M.K.S. ]
+
+ * Description: 
+ *     This file contains the OrderRepository class, which manages operations related to
+ *     customer orders in the E-commerce system. It includes methods for creating, retrieving,
+ *     updating, and deleting orders stored in MongoDB.
+ * 
+ * Dependencies:
+ *     - MongoDB.Driver: Used for interacting with the MongoDB database for order storage.
+ *     - Order: Represents the order model, including details such as OrderId, CustomerId, 
+ *       TotalPrice, Status, and UpdatedDate.
+ * 
+ * Methods:
+ *     - CreateOrderAsync: Inserts a new order into the database.
+ *     - GetOrdersByCustomerAsync: Retrieves all orders associated with a specific customer ID.
+ *     - GetExistingIdsAsync: Checks if an order with the specified order ID already exists.
+ *     - GetAllOrdersAsync: Retrieves all orders from the database.
+ *     - GetOrderByOrderIdAsync: Retrieves an order by its custom order ID.
+ *     - GetOrdersByIdsAsync: Retrieves a list of orders matching the provided list of order IDs.
+ *     - UpdateOrderAsync: Updates the details of an existing order.
+ *     - UpdateOrderStatusAsync: Updates the status of an order.
+ *     - UpdateOrderTotalPriceAsync: Updates the total price of an order.
+ *     - UpdateOrderStatusToDeliveredAsync: Updates the status of an order to 'delivered'.
+ * 
+
+ */
+
 using api.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;

@@ -1,3 +1,31 @@
+/*
+ * File: OrderItemController.cs
+ * Author: [​Siriwardana S.M.K.S. ]
+
+ * Description:
+ *     This file contains the OrderItemController class, which manages order item operations 
+ *     for the E-commerce system. It provides functionalities to create, retrieve, update, 
+ *     and delete order items, as well as update their status. The controller ensures that 
+ *     updates to order items can only occur if the associated order has not been dispatched 
+ *     or delivered. It interacts with the OrderItemRepository and OrderRepository to perform 
+ *     necessary database operations.
+ * 
+ * Methods:
+ *     - CreateOrderItem: Creates a new order item based on the provided data.
+ *     - GetAllOrderItems: Retrieves a list of all order items.
+ *     - GetOrderItemById: Fetches a specific order item by its ID.
+ *     - UpdateOrderItem: Updates an existing order item, checking if the associated order 
+ *                        is not dispatched or delivered.
+ *     - UpdateOrderItemStatus: Updates the status of a specific order item, with checks 
+ *                              on the associated order's status.
+ *     - DeleteOrderItem: Deletes a specific order item by its ID.
+ *     - GetOrderItem: Retrieves an order item based on its order ID and product ID.
+ * 
+ * Dependencies:
+ *     - OrderItemRepository: Used for accessing order item data from the database.
+ *     - OrderRepository: Used for accessing order data and verifying order statuses.
+ */
+
 using api.Models;
 using api.Services;
 using api.DTOs;

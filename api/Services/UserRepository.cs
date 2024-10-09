@@ -1,3 +1,30 @@
+/*
+ * File: UserRepository.cs
+ * Author: [​Thilakarathne S.P. ]
+
+ * Description: 
+ *     This file contains the UserRepository class, which handles user-related operations 
+ *     in the E-commerce system. It includes methods for managing users such as creating, 
+ *     retrieving, approving, and updating user details.
+ * 
+ * Methods:
+ *     - CreateAsync: Inserts a new user into the database.
+ *     - GetByEmailAsync: Retrieves a user by their email address.
+ *     - GetPendingApprovalUsersAsync: Fetches a list of users who are pending approval.
+ *     - ApproveCustomerAsync: Approves a customer by updating their status in the database.
+ *     - NotifyCSR: Notifies customer service representatives by updating unapproved users' status.
+ *     - getExistingUserIds: Checks if a user ID already exists in the database.
+ *     - GetUserByIdAsync: Retrieves a user by their unique user ID.
+ *     - GetAllCustomersAsync: Fetches a list of all customers in the system.
+ *     - UpdateAsync: Updates the details of an existing user in the database.
+ * 
+ * Dependencies:
+ *     - MongoDB.Driver: Used to interact with the MongoDB database.
+ *     - ApplicationUser: Represents the user model for customers, including their approval status 
+ *       and other related details.
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,3 +1,25 @@
+/*
+ * File: VendorRepository.cs
+ * Author: [Piyumantha W.U.]
+
+ * Description: 
+ *     This file contains the VendorRepository class, which manages vendor-related operations 
+ *     in the E-commerce system. It includes methods for retrieving vendor details, including 
+ *     their ratings and customer information.
+ * 
+ * Methods:
+ *     - GetVendorWithRatingsAsync: Retrieves a specific vendor's details along with their ratings 
+ *       and calculates the average rating if ratings are present.
+ *     - GetAllVendorsWithRatingsAsync: Fetches a list of all vendors, along with their ratings 
+ *       and computes the average rating for each vendor.
+ * 
+ * Dependencies:
+ *     - MongoDB.Driver: Used to interact with the MongoDB database.
+ *     - ApplicationUser: Represents the user model for vendors, including their ratings and 
+ *       other related details.
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

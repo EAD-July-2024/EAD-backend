@@ -1,3 +1,37 @@
+/*
+ * File: ProductRepository.cs
+ * Author: [​Gunasekara S.N.W. ]
+
+ * Description: 
+ *     This file contains the ProductRepository class, which handles operations related to 
+ *     product management in the E-commerce system. It includes methods for creating, retrieving, 
+ *     updating, and deleting products, as well as managing product images stored in Amazon S3.
+ * 
+ * Dependencies:
+ *     - MongoDB.Driver: Used to interact with the MongoDB database for product and order item storage.
+ *     - Amazon.S3: Used for uploading and managing product images in an Amazon S3 bucket.
+ *     - Product: Represents the product model, including details such as ProductId, Name, 
+ *       Description, Price, Quantity, and ImageUrls.
+ *     - OrderItem: Represents order items associated with products.
+ * 
+ * Methods:
+ *     - UploadImageAsync: Uploads an image to the specified S3 bucket and returns the image URL.
+ *     - CreateAsync: Creates a new product and uploads associated images to S3.
+ *     - getExistingIds: Checks if a product with the specified ID already exists.
+ *     - GetAsync: Retrieves all products from the database.
+ *     - GeneratePresignedURL: Generates a pre-signed URL for accessing a product image in S3.
+ *     - GetByCustomIdAsync: Retrieves a product by its custom ID.
+ *     - GetByVendorIdAsync: Retrieves all products associated with a specified vendor.
+ *     - DeactivateProductAsync: Soft deletes a product by updating its IsDeleted status.
+ *     - UpdateQuantityAsync: Updates the quantity of a specified product.
+ *     - GetLowStockProductsAsync: Retrieves products that are low in stock based on a specified threshold.
+ *     - UpdateProductAsync: Updates the details of a product and handles image updates.
+ *     - IsProductInAnyOrderAsync: Checks if a product is part of any order.
+ *     - UpdateIsDeletedAsync: Updates the IsDeleted status of a product based on product ID and vendor ID.
+ * 
+
+ */
+
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.Runtime;  // Required for BasicAWSCredentials

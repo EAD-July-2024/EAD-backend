@@ -1,3 +1,46 @@
+/*
+ * File: CategoryRepository.cs
+ * Author: [Piyumantha W.U.]
+
+ * Description:
+ *     This file contains the CategoryRepository class, which provides methods for 
+ *     managing categories in a MongoDB database. The repository allows for CRUD 
+ *     operations, including retrieving, creating, updating, and soft-deleting 
+ *     categories.
+ * 
+ * Dependencies:
+ *     - MongoDB.Driver: For interacting with the MongoDB database.
+ *     - Microsoft.Extensions.Options: For accessing MongoDB settings from the 
+ *       application configuration.
+ * 
+ * Methods:
+ *     - CategoryRepository: Constructor that initializes the MongoDB collection 
+ *       for categories using the provided MongoDB settings.
+ * 
+ *     - GetAsync:
+ *         Retrieves all categories that are not marked as deleted (isDeleted = false).
+ * 
+ *     - GetByCustomIdAsync:
+ *         Retrieves a category by its custom ID (CategoryId). Returns null if 
+ *         the category does not exist or is marked as deleted.
+ * 
+ *     - CreateAsync:
+ *         Creates a new category by inserting it into the database.
+ * 
+ *     - UpdateAsync:
+ *         Updates an existing category based on its custom ID. Allows updating 
+ *         the name, description, status, and isDeleted fields. 
+ * 
+ *     - DeactivateCategoryAsync:
+ *         Soft deletes a category by setting the isDeleted field to true. 
+ * 
+ *     - GetExistingIdsAsync:
+ *         Checks if a category with the specified custom ID already exists in 
+ *         the database. Returns true if it exists, false otherwise.
+ * 
+
+ */
+
 using api.Models;
 using MongoDB.Driver;
 using Microsoft.Extensions.Options;

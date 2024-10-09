@@ -1,3 +1,26 @@
+/*
+ * File: RatingRepository.cs
+ * Author: [Gunasekara S.N.W. ]
+
+ * Description: 
+ *     This file contains the RatingRepository class, which handles operations related to ratings 
+ *     in the E-commerce system. It includes methods for adding ratings, calculating average ratings, 
+ *     retrieving ratings for vendors, and updating rating comments.
+ * 
+ * Methods:
+ *     - AddRatingAsync: Inserts a new rating and comment into the database.
+ *     - CalculateAverageRating: Computes the average rating for a specific vendor based on their ratings.
+ *     - GetRatingsForVendorAsync: Retrieves a list of ratings for a specified vendor.
+ *     - GetRatingByCustomerAndVendorAsync: Fetches a specific rating given the customer and vendor IDs.
+ *     - UpdateRatingAsync: Updates an existing rating in the database.
+ * 
+ * Dependencies:
+ *     - MongoDB.Driver: Used to interact with the MongoDB database.
+ *     - Rating: Represents the rating model, including details such as CustomerId, VendorId, 
+ *       Stars, and Comments.
+ * 
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,3 +1,42 @@
+/*
+ * File: OrderController.cs
+ * Author: [​Siriwardana S.M.K.S. ]
+ 
+ * Description: 
+ *     This file contains the OrderController class, which manages all order-related operations 
+ *     in the E-commerce application. It interacts with the Product, Order, OrderItem, and 
+ *     FCM Token repositories to facilitate functionalities such as order creation, retrieval, 
+ *     updating, and status management.
+ * 
+ * Methods:
+ *     - GenerateUniqueOrderIdAsync: Generates a unique order ID for new orders to avoid 
+ *                                    duplicates in the database.
+ *     - CreateOrder: Validates product availability, creates a new order based on the provided 
+ *                    request, updates product stock, and sends notifications to vendors if 
+ *                    stock is low.
+ *     - GetAllOrdersWithItems: Retrieves all orders along with their associated items from 
+ *                               the database.
+ *     - GetOrdersByUserRole: Fetches orders based on the user's role (Admin or Vendor). 
+ *                            Admins can view all orders, while Vendors see only their orders.
+ *     - GetOrderByOrderIdWithItems: Retrieves a specific order and its items using the 
+ *                                    provided order ID.
+ *     - GetOrdersByCustomerIdWithItems: Retrieves all orders placed by a specific customer 
+ *                                        along with their associated items.
+ * 
+ * Dependencies:
+ *     - ProductRepository: Manages product data and availability checks.
+ *     - OrderRepository: Handles order data and operations.
+ *     - OrderItemRepository: Manages individual order items within orders.
+ *     - FCMTokenRepository: Manages Firebase Cloud Messaging tokens for notifications.
+ *     - FirebaseService: Provides functionality to send notifications to users via Firebase.
+ * 
+ * Models:
+ *     - OrderCreationRequest: Represents the incoming request for creating a new order, 
+ *                             containing product IDs and quantities.
+ *     - OrderResponse: Represents the response structure for order details including 
+ *                      order ID, status, and associated items.
+ */
+
 using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
