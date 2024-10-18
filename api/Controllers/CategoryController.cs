@@ -83,15 +83,23 @@ namespace api.Controllers
         [HttpPut("{categoryId}")]
         public async Task<IActionResult> Update(string categoryId, [FromBody] Category updatedCategory)
         {
+            // Fetch the existing category
             var existingCategory = await _categoryRepository.GetByCustomIdAsync(categoryId);
             if (existingCategory == null)
             {
                 return NotFound("Category not found");
             }
-
-            // Only update the required fields: Name, Description, and isDeleted
-            await _categoryRepository.UpdateAsync(categoryId, updatedCategory.Name, updatedCategory.Description, updatedCategory.Status, updatedCategory.isDeleted);
-
+        
+            // Call the repository with only the fields provided in the request
+            await _categoryRepository.UpdateAsync(
+                categoryId,
+                updatedCategory.Name,
+                updatedCategory.Description,
+                updatedCategory.Status,
+                updatedCategory.isDeleted
+            );
+        
+            // Return the updated category
             return Ok(updatedCategory);
         }
 

@@ -77,20 +77,40 @@ namespace api.Services
         }
 
         // Update an existing category
-        public async Task UpdateAsync(string categoryId, string? name, string? description, string? status, bool isDeleted)
+        public async Task UpdateAsync(string categoryId, string? name = null, string? description = null, string? status = null, bool? isDeleted = null)
         {
             var filter = Builders<Category>.Filter.Eq(c => c.CategoryId, categoryId);
 
-            // Define the fields to be updated
-            var update = Builders<Category>.Update
-                .Set(c => c.Name, name)
-                .Set(c => c.Description, description)
-                .Set(c => c.Status, status)
-                .Set(c => c.isDeleted, isDeleted);
-
-            // Update the category document, but only with the specified fields
-            await _categories.UpdateOneAsync(filter, update);
-        }
+            // Initialize an empty UpdateDefinition
+            var update = Builders<Category>.Update.Combine();
+        
+            // Apply updates only for non-null fields
+            if (!string.IsNullOrEmpty(name))
+            {
+                update = update.Set(c => c.Name, name);
+            }
+        
+            if (description != null)
+            {
+                update = update.Set(c => c.Description, description);
+            }
+        
+            if (!string.IsNullOrEmpty(status))
+            {
+                update = update.Set(c => c.Status, status);
+            }
+        
+            if (isDeleted.HasValue)
+            {
+                update = update.Set(c => c.isDeleted, isDeleted.Value);
+            }
+        
+            // Perform the update if there are any changes
+            if (update != Builders<Category>.Update.Combine())
+            {
+                await _categories.UpdateOneAsync(filter, update);
+            }
+                }
 
         // public async Task UpdateAsync(string categoryId, string? name, string? description, string? status, bool? isDeleted)
         // {
